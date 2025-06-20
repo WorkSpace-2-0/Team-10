@@ -1,28 +1,18 @@
 import express from "express";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
+import cors from "cors";
+import { connectDb } from "./mongoConnection";
 
-
-dotenv.config();
 const app = express();
-const port = process.env.PORT || 9000;
-
+app.use(cors());
 app.use(express.json());
+const port = 9999;
 
-app.listen (port, () => {
-  console.log(`Server is running on port ${port}`);
+connectDb();
+
+app.use("/service", (req, res) => {
+  res.send("hello world");
 });
-// const mongoConnectionString = process.env.MONGO_CONNECTION_STRING;
-// if (!mongoConnectionString) {
-//   throw new Error(
-//     "MONGO_CONNECTION_STRING is not defined in the environment variables"
-//   );
-// }
 
-// mongoose.connect(mongoConnectionString).then(() => {
-//   console.log("Database connected");
-// });
-
-// Routers
-// app.use("/api/auth",);
-
+app.listen(port, () => {
+  console.log(`successfuly listenin port ${port}`);
+});
