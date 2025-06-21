@@ -1,17 +1,15 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 
 const moodEntrySchema = new mongoose.Schema({
   userId: {
     type: mongoose.Types.ObjectId,
     ref: "user",
   },
-  teamId: {
-    type: mongoose.Types.ObjectId,
-    ref: "team",
-  },
   moodScore: {
     type: Number,
-    note: String,
-    createdAt: { type: Date, default: Date.now },
   },
+  note: { type: String },
+  createdAt: { type: Date, required: true },
 });
+
+export const moodEntry = mongoose.model("moodEntry", moodEntrySchema);
