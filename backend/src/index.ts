@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import { connectDb } from "./mongoConnection";
-import { UserRouter } from "./routers/user.router";
+import { AuthRouter } from "./routers/auth.router";
+import { ProfileRouter } from "./routers/profile.router";
 
 const app = express();
 app.use(cors());
@@ -13,7 +14,8 @@ connectDb();
 app.use("/service", (req, res) => {
   res.send("hello world");
 });
-app.use("/user", UserRouter);
+app.use("/auth", AuthRouter);
+app.use("/profile", ProfileRouter);
 
 app.listen(port, () => {
   console.log(`successfuly listenin port ${port}`);
