@@ -1,21 +1,12 @@
 import { Request, Response } from "express";
 import { moodEntry } from "../../models/mood.entry";
+import { checkStreakAndReward } from "../../middlewares/checkAndRewardUser";
 export const createMood = async (req: Request, res: Response) => {
   try {
-    const { userId, moodScore, moodType, note } = req.body;
-    if (typeof moodScore !== "number" || moodScore < 0 || moodScore > 10) {
-      res.status(400).json({ error: "Mood score must be between 0 and 10" });
-    }
+    const { userId, moodScore, note } = req.body;
     if (!userId) {
       res.status(400).json({ error: "UserId is required" });
     }
-    if (
-      !moodType ||
-      !["ecstatic", "happy", "neutral", "sad", "angry"].includes(moodType)
-    ) {
-      res.status(400).json({ error: "Invalid mood type" });
-    }
-
     const newMood = new moodEntry({
       userId,
       moodScore,
@@ -23,7 +14,13 @@ export const createMood = async (req: Request, res: Response) => {
     });
     const saveMood = await newMood.save();
 
-    res.status(201).json(saveMood);
+    const reward = await checkStreakAndReward(userId);
+
+    res.status(201).json({
+      success: true,
+      mood: saveMood,
+      reward: reward || undefined,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server error" });
