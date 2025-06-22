@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { moodEntry } from "../../models/mood.entry";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
+import { countConsecutiveMoodEntryDays } from "../../middlewares/statsHelper";
 
 dayjs.extend(isoWeek);
 
@@ -151,6 +152,10 @@ export const getMoodSummary = async (req: Request, res: Response) => {
       ? +(((overallAverage - prevAverage) / prevAverage) * 100).toFixed(2)
       : 0;
 
+    const streakCount = userId
+      ? await countConsecutiveMoodEntryDays(userId)
+      : 0;
+
     res.status(200).json({
       success: true,
       bestDay,
@@ -159,6 +164,7 @@ export const getMoodSummary = async (req: Request, res: Response) => {
       changePercentage,
       rangeDays,
       userId: userId || null,
+      streakCount,
     });
   } catch (err) {
     console.error("getMoodSummary error:", err);

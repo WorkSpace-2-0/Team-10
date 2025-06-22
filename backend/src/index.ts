@@ -6,7 +6,6 @@ import { ProfileRouter } from "./routers/profile.router";
 import { MoodRouter } from "./routers/mood.router";
 import { MoodEntryRouter } from "./routers/moodEntry.router";
 import { StatsRouter } from "./routers/stats.router";
-import { startMoodAlertScheduler } from "./schedulers/moodAlertScheduler";
 import { RewardRouter } from "./routers/reward.router";
 
 const app = express();
@@ -15,7 +14,6 @@ app.use(express.json());
 const port = 9999;
 
 connectDb();
-startMoodAlertScheduler();
 
 app.use("/service", (req, res) => {
   res.send("hello world");
