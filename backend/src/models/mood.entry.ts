@@ -1,4 +1,4 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 
 const moodEntrySchema = new mongoose.Schema({
   userId: {
@@ -27,8 +27,13 @@ const moodEntrySchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  moodScore: {
+    type: Number,
   },
+  note: { type: String },
+  createdAt: { type: Date, required: true },
 });
 
 const moodEntry = mongoose.model("MoodEntry", moodEntrySchema);
 export default moodEntry;
+export const moodEntry = mongoose.model("moodEntry", moodEntrySchema);
