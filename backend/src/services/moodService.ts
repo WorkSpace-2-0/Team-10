@@ -1,18 +1,15 @@
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { moodEntry } from "../models/mood.entry";
 
-function startOfDay(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+dayjs.extend(utc);
+
+export function startOfDay(date: Date): Date {
+  return dayjs(date).utc().startOf("day").toDate();
 }
-function endOfDay(date: Date): Date {
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    23,
-    59,
-    59,
-    999
-  );
+
+export function endOfDay(date: Date): Date {
+  return dayjs(date).utc().endOf("day").toDate();
 }
 
 export const fetchMoodEntries = async (
@@ -22,7 +19,7 @@ export const fetchMoodEntries = async (
 ) => {
   return await moodEntry.find({
     userId,
-    date: { $gte: startOfDay(startDate), $lte: endOfDay(endDate) },
+    createdAt: { $gte: startOfDay(startDate), $lte: endOfDay(endDate) },
   });
 };
 
@@ -31,10 +28,27 @@ export const calculateAverageMood = async (
   startDate: Date,
   endDate: Date
 ) => {
-  const moods = await fetchMoodEntries(userId, startDate, endDate);
-  if (moods.length === 0) return 10;
+  const start = startOfDay(startDate);
+  const end = endOfDay(endDate);
+
+  console.log(
+    `[calculateAverageMood] User: ${userId}, Query DateRange: ${start.toISOString()} - ${end.toISOString()}`
+  );
+
+  const moods = await fetchMoodEntries(userId, start, end);
+
+  if (moods.length === 0) {
+    console.log(
+      `[calculateAverageMood] User: ${userId}, No mood entries found in range.`
+    );
+    return 10; // default high mood if no data
+  }
   const total = moods.reduce((sum, m) => sum + (m.moodScore ?? 0), 0);
-  return total / moods.length;
+  const avg = total / moods.length;
+  console.log(
+    `[calculateAverageMood] User: ${userId}, Count: ${moods.length}, AvgMood: ${avg}`
+  );
+  return avg;
 };
 
 export async function checkLowMoodStreak(
@@ -50,14 +64,24 @@ export async function checkLowMoodStreak(
     day.setDate(today.getDate() - i);
 
     const dayOfWeek = day.getDay();
-    if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue; // skip weekends
 
-    const avgMood = await calculateAverageMood(userId, day, day);
+    const start = startOfDay(day);
+    const end = endOfDay(day);
+    const avgMood = await calculateAverageMood(userId, start, end);
+
+    console.log(
+      `[checkLowMoodStreak] User: ${userId}, Date: ${day.toISOString()}, AvgMood: ${avgMood}, Threshold: ${threshold}`
+    );
+
     if (avgMood < threshold) {
       streakCount++;
     } else {
       break;
     }
+    console.log(
+      `[checkLowMoodStreak] User: ${userId}, StreakCount: ${streakCount}, Required: ${days}`
+    );
   }
 
   return streakCount >= days;

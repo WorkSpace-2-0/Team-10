@@ -1,27 +1,47 @@
 import mongoose from "mongoose";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import { User } from "../models/user.model";
 import { moodEntry } from "../models/mood.entry";
 
 const MONGO_URI =
-  "mongodb+srv://workspace20250720:Lxgiwyl0@workspace.sx6rlqf.mongodb.net/"; // replace with your DB
+  "mongodb+srv://workspace20250720:Lxgiwyl0@workspace.sx6rlqf.mongodb.net/";
 
-// Create 10 fake userIds
-const fakeUserIds = Array.from(
-  { length: 10 },
-  () => new mongoose.Types.ObjectId()
-);
+dayjs.extend(utc);
 
-// Generate random mood score (0.0 to 10.0)
-const randomMood = () => +(Math.random() * 10).toFixed(1);
+// Generate realistic mood score with patterns
+const generateMoodScore = (
+  date: Date,
+  userId: string,
+  index: number
+): number => {
+  let mood = 7.5 + Math.random();
 
-// Get weekday-only dates from start to end
+  mood += Math.random() * 1.5 - 0.75;
+
+  if (index % 7 === 0) {
+    mood += Math.random() * 0.3;
+  }
+
+  if (Math.random() < 0.05) {
+    mood -= Math.random() * 1.5;
+  }
+
+  mood = Math.max(6, Math.min(10, mood));
+
+  const userFactor = Math.sin(userId.toString().length * 0.1) * 0.3;
+  mood += userFactor;
+
+  return +mood.toFixed(1);
+};
+
 const getWeekdayDates = (start: string, end: string): Date[] => {
   const days: Date[] = [];
-  let current = dayjs(start);
-  const endDate = dayjs(end);
+  let current = dayjs.utc(start);
+  const endDate = dayjs.utc(end);
 
-  while (current.isBefore(endDate)) {
-    const day = current.day(); // 0 = Sunday, 6 = Saturday
+  while (!current.isAfter(endDate)) {
+    const day = current.day();
     if (day !== 0 && day !== 6) {
       days.push(current.toDate());
     }
@@ -31,31 +51,47 @@ const getWeekdayDates = (start: string, end: string): Date[] => {
 };
 
 const seed = async () => {
-  await mongoose.connect(MONGO_URI);
-  console.log("✅ Connected to MongoDB");
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log("✅ Connected to MongoDB");
 
-  await moodEntry.deleteMany({});
-  console.log("🧹 Cleared mood entries");
-
-  const allDates = getWeekdayDates("2025-03-01", "2025-06-21"); // ~3 weeks
-
-  const testData = [];
-
-  for (const userId of fakeUserIds) {
-    for (const date of allDates) {
-      testData.push({
-        userId,
-        moodScore: randomMood(),
-        createdAt: date,
-      });
+    const users = await User.find({}, { _id: 1 }).lean();
+    if (users.length === 0) {
+      console.error("No users found in User collection. Seed aborted.");
+      process.exit(1);
     }
+    console.log(`👥 Found ${users.length} users`);
+
+    await moodEntry.deleteMany({});
+    console.log("🧹 Cleared mood entries");
+
+    const allDates = getWeekdayDates("2025-03-01", "2025-06-21");
+
+    const testData = [];
+
+    for (const user of users) {
+      const userIdStr = user._id.toString();
+      for (let i = 0; i < allDates.length; i++) {
+        const date = allDates[i];
+        testData.push({
+          userId: user._id,
+          moodScore: generateMoodScore(date, userIdStr, i),
+          createdAt: date,
+        });
+      }
+    }
+
+    await moodEntry.insertMany(testData);
+    console.log(
+      `✅ Inserted ${testData.length} mood entries for ${users.length} users`
+    );
+
+    await mongoose.disconnect();
+    console.log("🔌 Disconnected");
+  } catch (error) {
+    console.error("Seed error:", error);
+    process.exit(1);
   }
-
-  await moodEntry.insertMany(testData);
-  console.log(`✅ Inserted ${testData.length} mood entries for 10 users`);
-
-  await mongoose.disconnect();
-  console.log("🔌 Disconnected");
 };
 
 seed();

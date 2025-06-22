@@ -10,9 +10,9 @@ export function startMoodAlertScheduler(): void {
   cron.schedule("* * * * *", async () => {
     console.log("Mood alert scheduler triggered at", new Date().toISOString());
     try {
-      await sendDailyReminderEmails();
-      await sendStreakAlertIfNeeded();
-      await sendPeriodicAlertIfNeeded();
+      await sendDailyReminderEmails(true);
+      await sendStreakAlertIfNeeded(true);
+      await sendPeriodicAlertIfNeeded(true);
       console.log("Mood alert scheduler finished successfully.");
     } catch (error) {
       console.error("Error in mood alert scheduler:", error);
