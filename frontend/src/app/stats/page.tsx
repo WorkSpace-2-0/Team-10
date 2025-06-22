@@ -32,13 +32,14 @@ type Unit = "day" | "week" | "month";
 
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
-const MoodAnalytics: React.FC<{ userId?: string }> = ({ userId }) => {
+const MoodAnalytic = () => {
   const [rangeDays, setRangeDays] = useState<number>(30);
   const [unit, setUnit] = useState<Unit>("day");
   const [chartData, setChartData] = useState<any>(null);
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // const userId = "68567d4fe93a30f6a7174e6a";
 
   // Fetch chart and summary data whenever range or unit changes
   useEffect(() => {
@@ -48,7 +49,7 @@ const MoodAnalytics: React.FC<{ userId?: string }> = ({ userId }) => {
       try {
         // Fetch mood chart
         const chartRes = await axios.get("http://localhost:9999/stats/chart", {
-          params: { range: rangeDays, unit, userId },
+          params: { range: rangeDays, unit },
         });
 
         // Filter out weekend labels just in case (only for 'day' unit)
@@ -66,7 +67,7 @@ const MoodAnalytics: React.FC<{ userId?: string }> = ({ userId }) => {
         const summaryRes = await axios.get(
           "http://localhost:9999/stats/summary",
           {
-            params: { range: rangeDays, userId },
+            params: { range: rangeDays },
           }
         );
         setSummary(summaryRes.data);
@@ -78,7 +79,7 @@ const MoodAnalytics: React.FC<{ userId?: string }> = ({ userId }) => {
     };
 
     fetchData();
-  }, [rangeDays, unit, userId]);
+  }, [rangeDays, unit]);
 
   // Prepare Chart.js data and options
   const data = {
@@ -253,4 +254,4 @@ const MoodAnalytics: React.FC<{ userId?: string }> = ({ userId }) => {
   );
 };
 
-export default MoodAnalytics;
+export default MoodAnalytic;

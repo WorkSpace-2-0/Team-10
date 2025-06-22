@@ -13,7 +13,7 @@ const moodEntrySchema = new mongoose.Schema({
   note: {
     type: String,
   },
-  createdAt: { type: Date, required: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
 export const moodEntry = mongoose.model("moodEntry", moodEntrySchema);

@@ -7,6 +7,6 @@ import {
 
 export const MoodRouter = express.Router();
 
-MoodRouter.post("/newMood", createMood);
+MoodRouter.post("/newMood/:userId", createMood);
 MoodRouter.get("/", getAllMoods);
 MoodRouter.get("/moods/user/:userId", getUserMoods);
