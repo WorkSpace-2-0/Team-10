@@ -1,5 +1,20 @@
 import { moodEntry } from "../models/mood.entry";
 
+function startOfDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+function endOfDay(date: Date): Date {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    23,
+    59,
+    59,
+    999
+  );
+}
+
 export const fetchMoodEntries = async (
   userId: string,
   startDate: Date,
@@ -7,7 +22,7 @@ export const fetchMoodEntries = async (
 ) => {
   return await moodEntry.find({
     userId,
-    date: { $gte: startDate, $lte: endDate },
+    date: { $gte: startOfDay(startDate), $lte: endOfDay(endDate) },
   });
 };
 
@@ -22,9 +37,8 @@ export const calculateAverageMood = async (
   return total / moods.length;
 };
 
-// Check if there is a streak of N consecutive weekdays with average mood below threshold
 export async function checkLowMoodStreak(
-  userId: string, // Add userId parameter here
+  userId: string,
   days: number,
   threshold: number
 ): Promise<boolean> {
@@ -35,16 +49,14 @@ export async function checkLowMoodStreak(
     const day = new Date(today);
     day.setDate(today.getDate() - i);
 
-    // Skip weekends
     const dayOfWeek = day.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
-    // Pass userId along with startDate and endDate (same day)
     const avgMood = await calculateAverageMood(userId, day, day);
     if (avgMood < threshold) {
       streakCount++;
     } else {
-      break; // Streak broken
+      break;
     }
   }
 

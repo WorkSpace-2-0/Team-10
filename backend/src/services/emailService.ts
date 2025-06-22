@@ -13,6 +13,10 @@ export async function sendEmail(
   subject: string,
   text: string
 ): Promise<void> {
+  if (!to) {
+    throw new Error("No recipient email address provided");
+  }
+
   try {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,

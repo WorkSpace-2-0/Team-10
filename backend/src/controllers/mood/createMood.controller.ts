@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
-import moodEntry from "../../models/mood.entry";
-
+import { moodEntry } from "../../models/mood.entry";
 export const createMood = async (req: Request, res: Response) => {
   try {
-    const { userId, teamId, moodScore, moodType, note } = req.body;
+    const { userId, moodScore, moodType, note } = req.body;
     if (typeof moodScore !== "number" || moodScore < 0 || moodScore > 10) {
       res.status(400).json({ error: "Mood score must be between 0 and 10" });
     }
@@ -19,9 +18,7 @@ export const createMood = async (req: Request, res: Response) => {
 
     const newMood = new moodEntry({
       userId,
-      //   teamId,
       moodScore,
-      moodType,
       note,
     });
     const saveMood = await newMood.save();

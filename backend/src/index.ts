@@ -6,15 +6,15 @@ import { ProfileRouter } from "./routers/profile.router";
 import { MoodRouter } from "./routers/mood.router";
 import { MoodEntryRouter } from "./routers/moodEntry.router";
 import { StatsRouter } from "./routers/stats.router";
-
+import { startMoodAlertScheduler } from "./schedulers/moodAlertScheduler";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 const port = 9999;
-// startMoodAlertScheduler();
 
 connectDb();
+startMoodAlertScheduler();
 
 app.use("/service", (req, res) => {
   res.send("hello world");
