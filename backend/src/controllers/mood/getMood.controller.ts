@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import moodEntry from "../../models/mood.entry";
+import { moodEntry } from "../../models/mood.entry";
 
 export const getAllMoods = async (_req: Request, res: Response) => {
   try {
