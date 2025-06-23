@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 
 const RoleSwitcher = ({ isIndividual, toggleMode }) => {
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-2 cursor-pointer">
       <Switch checked={isIndividual} onCheckedChange={toggleMode} />
     </div>
   );
