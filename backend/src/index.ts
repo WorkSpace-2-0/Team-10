@@ -7,6 +7,7 @@ import { MoodRouter } from "./routers/mood.router";
 import { MoodEntryRouter } from "./routers/moodEntry.router";
 import { StatsRouter } from "./routers/stats.router";
 import { RewardRouter } from "./routers/reward.router";
+import { demoRouter } from "./routers/demo.router";
 
 const app = express();
 app.use(cors());
@@ -24,6 +25,7 @@ app.use("/mood", MoodRouter);
 app.use("/moodEntry", MoodEntryRouter);
 app.use("/stats", StatsRouter);
 app.use("/reward", RewardRouter);
+app.use("/api", demoRouter);
 
 app.listen(port, () => {
   console.log(`successfuly listenin port ${port}`);
