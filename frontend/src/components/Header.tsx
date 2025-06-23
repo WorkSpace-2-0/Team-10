@@ -31,9 +31,9 @@ const Header = () => {
       </div>
 
       <div>
-        <span className="text-sm text-gray-600">
+        <div className="text-sm text-gray-600">
           {isIndividual ? <AdminComponent /> : <IndividualComponent />}
-        </span>
+        </div>
       </div>
     </div>
   );

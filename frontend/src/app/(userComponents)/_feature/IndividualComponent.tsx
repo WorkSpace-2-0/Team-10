@@ -1,11 +1,14 @@
 "use client";
 
+import UserAnalytics from "../_components/Analytics/UserAnalytics";
 import MoodEntry from "../_components/MoodEntry";
+UserAnalytics;
 
 export default function IndividualComponent() {
   return (
-    <div className="bg-blue-500 w-screen h-screen mt-[100px] flex justify-center">
+    <div className=" w-screen h-screen mt-[100px] flex-col flex justify-center">
       <MoodEntry />
+      <UserAnalytics />
     </div>
   );
 }
