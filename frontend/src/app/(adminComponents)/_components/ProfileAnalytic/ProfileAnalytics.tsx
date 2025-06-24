@@ -33,18 +33,29 @@ const ProfileAnalytics = () => {
   if (!stats) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {Object.entries(stats).map(([key, stat]) => (
-        <div
-          key={key}
-          className="border rounded-xl p-4 shadow-sm hover:border-blue-400 transition-all"
-        >
-          <h3 className="text-lg font-semibold mb-1">
-            {translate[key] ?? key}
-          </h3>
-          <p className="text-sm text-gray-700">{stat.description}</p>
+    <div className="h-screen w-full flex justify-center items-center flex-col ">
+      <div className="max-w-7xl w-full flex flex-col gap-9 p-6">
+        <div className="flex gap-6 items-center">
+          <h1 className="text-3xl">Санал болгох үйл ажиллагаанууд</h1>
+          <div className="py-1.5 px-3 bg-[#E2EBFE] border border-[#6396F8] rounded-4xl">
+            <p className="text-[14px]">Багийн профайл дээр суурилсан</p>
+          </div>
         </div>
-      ))}
+        <div className=" h-auto flex justify-between">
+          {Object.entries(stats).map(([key, stat]) => (
+            <div
+              key={key}
+              className="border rounded-xl w-[387px] h-[164px] flex flex-col gap-2 iteam-center p-8 shadow-sm hover:border-blue-400 transition-all"
+            >
+              <h3 className="text-lg mb-1 text-[18px]">
+                {translate[key] ?? key}
+              </h3>
+              <p className="text-[26px]">{stat.answer}</p>
+              <p className="text-neutral-500 text-[16px]">{stat.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
