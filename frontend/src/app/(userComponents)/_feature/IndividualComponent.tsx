@@ -3,7 +3,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import UserAnalytics from "../_components/Analytics/UserAnalytics";
 import MoodEntry from "../_components/MoodEntry";
+UserAnalytics;
 
 const weekdays = ["Да", "Мя", "Лха", "Пү", "Ба"];
 
@@ -119,6 +121,9 @@ export default function App() {
           </div>
         </div>
       )}
+    <div className=" w-full h-full mt-[100px] flex-col flex justify-center">
+      <MoodEntry />
+      <UserAnalytics />
     </div>
   );
 }

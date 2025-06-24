@@ -1,9 +1,13 @@
 "use client";
 
+import AdminAnalytics from "../_components/Analytics/AdminAnalytics";
+import ProfileAnalytics from "../_components/ProfileAnalytic/ProfileAnalytics";
+
 export default function AdminComponent() {
   return (
-    <div className="bg-green-500 mt-[100px]  w-screen h-screen">
-      admin components
+    <div className=" mt-[100px] flex flex-col gap-6  w-screen h-screen">
+      <ProfileAnalytics />
+      <AdminAnalytics />
     </div>
   );
 }
