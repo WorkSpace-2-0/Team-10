@@ -90,7 +90,6 @@ const MoodChart: React.FC<MoodChartProps> = ({ data, unit, rangeDays }) => {
       y: {
         min: 0,
         max: 10,
-        title: { display: true, text: "Mood Score (0-10)" },
       },
     },
   };

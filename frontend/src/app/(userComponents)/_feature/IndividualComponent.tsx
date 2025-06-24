@@ -6,7 +6,7 @@ UserAnalytics;
 
 export default function IndividualComponent() {
   return (
-    <div className=" w-screen h-screen mt-[100px] flex-col flex justify-center">
+    <div className=" w-full h-full mt-[100px] flex-col flex justify-center">
       <MoodEntry />
       <UserAnalytics />
     </div>

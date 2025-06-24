@@ -60,7 +60,7 @@ const AdminAnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
         {stats.map((stat, index) => (
           <div key={index} className="bg-white rounded-lg shadow-md p-4">
-            <div className="space-y-4 flex ">
+            <div className="space-y-4 flex justify-between">
               <div className="flex flex-col items-start gap-2">
                 <p className="text-sm text-neutral-500 text-[16px]">
                   {stat.title}
