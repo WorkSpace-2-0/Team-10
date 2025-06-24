@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -50,7 +48,7 @@ export default function App() {
       const targetDate = new Date(currentDate);
       targetDate.setDate(currentDate.getDate() + diff);
 
-      const targetDateStr = targetDate.toISOString().slice(0, 10); 
+      const targetDateStr = targetDate.toISOString().slice(0, 10);
 
       const moodForDay = moods.find((m: any) => {
         const moodDate = new Date(m.createdAt).toISOString().slice(0, 10);
@@ -77,11 +75,11 @@ export default function App() {
   const days = getDayEmojiMap();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4 py-10">
+    <div className="h-full w-full flex items-center flex-col gap-6 justify-center bg-white px-4 py-10">
       {!submitted ? (
         <MoodEntry onSuccess={handleSuccess} userName={userName} />
       ) : (
-        <div className="flex flex-col items-center text-center">
+        <div className="flex flex-col items-center text-center w-full h-auto">
           <h2 className="text-xl font-semibold mb-2">Сайн уу, {userName}</h2>
           <h1 className="text-2xl font-bold mb-2">
             Мэдрэмжээ хуваалцсанд баярлалаа.
@@ -121,8 +119,6 @@ export default function App() {
           </div>
         </div>
       )}
-    <div className=" w-full h-full mt-[100px] flex-col flex justify-center">
-      <MoodEntry />
       <UserAnalytics />
     </div>
   );

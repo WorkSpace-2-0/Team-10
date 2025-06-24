@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React, { useState } from "react";
@@ -54,8 +52,8 @@ export default function MoodForm({ onSuccess, userName }: MoodEntryProps) {
   };
 
   return (
-    <div className="w-full bg-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md text-center">
+    <div className="w-full h-auto bg-white flex items-center justify-center px-4">
+      <div className="w-[590px] h-auto flex flex-col justify-center items-center">
         <h2 className="text-gray-600 text-lg mb-1">Сайн уу, {userName}</h2>
         <h1 className="text-2xl font-semibold mb-6">
           Та өнөөдөр ямар сэтгэгдэлтэй байна вэ?
