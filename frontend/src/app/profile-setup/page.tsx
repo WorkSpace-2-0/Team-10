@@ -1,3 +1,5 @@
+"use client";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Formik, Form } from "formik";
@@ -12,15 +14,15 @@ import Progress from "../../components/sign-up/Progress";
 const getSearchParams = () => {
   const searchParams = new URLSearchParams(window.location.search);
   return {
-    step: searchParams.get('step'),
-    userId: searchParams.get('userId'),
+    step: searchParams.get("step"),
+    userId: searchParams.get("userId"),
   };
 };
 
 const ProfileSetup = () => {
   const router = useRouter();
   const [step, setStep] = useState(3);
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
     const params = getSearchParams();
