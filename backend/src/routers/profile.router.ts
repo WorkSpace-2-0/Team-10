@@ -1,7 +1,10 @@
 import express from "express";
 import { createProfile } from "../controllers/profile/createProfile.controller";
 import { getProfileById } from "../controllers/profile/getProfileById.controller";
+import { updateProfile } from "../controllers/profile/updateProfile.controller";
 export const ProfileRouter = express.Router();
 
-ProfileRouter.post("/createProfile/:userId", createProfile);
-ProfileRouter.get("/getProfile/:userId", getProfileById);
+ProfileRouter.put("/:userId", updateProfile);
+ProfileRouter.post("/:userId", createProfile);
+ProfileRouter.get("/:userId", getProfileById);
+
