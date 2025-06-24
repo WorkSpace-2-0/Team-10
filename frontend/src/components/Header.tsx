@@ -16,8 +16,8 @@ const Header = ({ toggleMode, isIndividual }: PropsType) => {
   const router = useRouter();
 
   return (
-    <div className="w-full h-full flex flex-col items-center cursor-default">
-      <div className="max-w-7xl w-full h-[64px] flex justify-between">
+    <div className=" w-screen  h-[64px] flex items-center justify-center cursor-default">
+      <div className="max-w-7xl w-full h-full flex justify-between">
         <button
           className="flex justify-center items-center gap-1 cursor-pointer"
           onClick={() => router.push("/")}
