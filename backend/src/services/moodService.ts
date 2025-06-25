@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { moodEntry } from "../models/mood.entry";
+import { MoodEntry } from "../models/mood.entry";
 
 dayjs.extend(utc);
 
@@ -17,7 +17,7 @@ export const fetchMoodEntries = async (
   startDate: Date,
   endDate: Date
 ) => {
-  return await moodEntry.find({
+  return await MoodEntry.find({
     userId,
     createdAt: { $gte: startOfDay(startDate), $lte: endOfDay(endDate) },
   });

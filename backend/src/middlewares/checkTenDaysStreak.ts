@@ -1,4 +1,4 @@
-import { moodEntry } from "../models/mood.entry";
+import { MoodEntry } from "../models/mood.entry";
 
 export async function hasTenDayMoodEntryStreak(
   userId: string,
@@ -30,7 +30,7 @@ export async function hasTenDayMoodEntryStreak(
       999
     );
 
-    const count = await moodEntry.countDocuments({
+    const count = await MoodEntry.countDocuments({
       userId,
       date: { $gte: start, $lte: end },
     });
