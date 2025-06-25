@@ -1,4 +1,4 @@
-import { moodEntry } from "../models/mood.entry";
+import { MoodEntry } from "../models/mood.entry";
 import utc from "dayjs/plugin/utc";
 import dayjs from "dayjs";
 dayjs.extend(utc);
@@ -20,7 +20,7 @@ export async function countConsecutiveMoodEntryDays(
     const start = currentDate.startOf("day").toDate();
     const end = currentDate.endOf("day").toDate();
 
-    const count = await moodEntry.countDocuments({
+    const count = await MoodEntry.countDocuments({
       userId,
       createdAt: { $gte: start, $lte: end },
     });

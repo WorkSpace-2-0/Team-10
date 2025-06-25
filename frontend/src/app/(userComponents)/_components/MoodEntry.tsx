@@ -1,38 +1,39 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "../../../components/ui/button";
+import { Textarea } from "../../../components/ui/textarea";
 import MoodSlider from "./Slider";
+import { useUser } from "../../../contexts/UserContext";
 
 type MoodEntryProps = {
   onSuccess?: () => void;
-  userName: string;
+  name?: string;
 };
 
-const moods = ["Angry", "Sad", "Neutral", "Happy", "Ecstatic"];
-const moodEmoji = ["😢", "😞", "🙂", "😊", "😄"];
-
-export default function MoodForm({ onSuccess, userName }: MoodEntryProps) {
+export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
   const [mood, setMood] = useState(2);
+  const [moodTitle, setMoodTitle] = useState("Хэвийн"); // Default
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const userId = "68597d890e5c6aa50243a223";
-  const BACKEND_URL = "http://localhost:9999";
+  const { userId } = useUser();
 
   const handleSubmit = async () => {
     setLoading(true);
     setMessage("");
 
     try {
-      const response = await fetch(`${BACKEND_URL}/mood/newMood/${userId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ moodScore: mood, note }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/mood/newMood/${userId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ moodScore: mood, note, moodTitle }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -41,6 +42,7 @@ export default function MoodForm({ onSuccess, userName }: MoodEntryProps) {
 
       setMessage("Амжилттай хадгалагдлаа!");
       setMood(2);
+      setMoodTitle("Хэвийн");
       setNote("");
 
       if (onSuccess) onSuccess();
@@ -54,17 +56,15 @@ export default function MoodForm({ onSuccess, userName }: MoodEntryProps) {
   return (
     <div className="w-full h-auto bg-white flex items-center justify-center px-4">
       <div className="w-[590px] h-auto flex flex-col justify-center items-center">
-        <h2 className="text-gray-600 text-lg mb-1">Сайн уу, {userName}</h2>
+        <h2 className="text-gray-600 text-lg mb-1">Сайн уу, {name}</h2>
         <h1 className="text-2xl font-semibold mb-6">
           Та өнөөдөр ямар сэтгэгдэлтэй байна вэ?
         </h1>
-
-        {/* <div className="text-[64px] mb-2">{moodEmoji[mood]}</div> */}
-        <div className="text-base font-medium text-gray-700 mb-6">
-          {moods[mood]}
-        </div>
-
-        <MoodSlider value={mood} onChange={setMood} />
+        <MoodSlider
+          value={mood}
+          onChange={setMood}
+          onMoodTitleChange={setMoodTitle}
+        />
 
         <p className="text-sm text-gray-400 mb-6 mt-6">
           Таны тэмдэглэл зөвхөн танд л харагдах болно.

@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import MoodChart from "./MoodChart";
 import AnalyticsControls from "./AnalyticsControls";
 import AnalyticsSummary from "./AnalyticsSummary";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "../../../../contexts/UserContext";
 
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
@@ -25,9 +25,12 @@ const UserAnalytics = () => {
       setLoading(true);
       setError(null);
       try {
-        const chartRes = await axios.get("http://localhost:9999/stats/chart", {
-          params: { range: rangeDays, unit, userId },
-        });
+        const chartRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/stats/chart`,
+          {
+            params: { range: rangeDays, unit, userId },
+          }
+        );
 
         const filteredData = chartRes.data.data.filter((item: any) => {
           if (unit === "day") {
@@ -40,7 +43,7 @@ const UserAnalytics = () => {
         setChartData(filteredData);
 
         const summaryRes = await axios.get(
-          "http://localhost:9999/stats/summary",
+          `${process.env.NEXT_PUBLIC_BASE_URL}/stats/summary`,
           {
             params: { range: rangeDays, userId },
           }

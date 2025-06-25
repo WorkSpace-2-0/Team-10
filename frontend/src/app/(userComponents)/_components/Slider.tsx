@@ -6,34 +6,54 @@ import React from "react";
 type MoodSliderProps = {
   value: number;
   onChange: (val: number) => void;
+  onMoodTitleChange?: (label: string) => void;
 };
 
 const moods = [
-  { emoji: "😭", label: "Angry", range: [0, 1.5] },
-  { emoji: "😞", label: "Sad", range: [1.5, 3] },
-  { emoji: "🙂", label: "Neutral", range: [3, 4.5] },
-  { emoji: "😊", label: "Happy", range: [4.5, 5.5] },
-  { emoji: "😄", label: "Ecstatic", range: [5.5, 6.01] },
+  { image: "angry.png", label: "Хэцүү", min: 0, max: 2 },
+  { image: "sad.png", label: "Тавгүй", min: 2, max: 4 },
+  { image: "neutral.png", label: "Хэвийн", min: 4, max: 6 },
+  { image: "happy.png", label: "Дажгүй шүү", min: 6, max: 8 },
+  { image: "awesome.png", label: "Супер", min: 8, max: 10.01 }, // Cover edge case for 10
 ];
 
 const getMood = (value: number) => {
-  return moods.find((m) => value >= m.range[0] && value < m.range[1]) || moods[0];
+  const roundedValue = Math.round(value * 100) / 100;
+  return (
+    moods.find((m) => roundedValue >= m.min && roundedValue < m.max) || moods[0]
+  );
 };
 
-export default function MoodSlider({ value, onChange }: MoodSliderProps) {
+export default function MoodSlider({
+  value,
+  onChange,
+  onMoodTitleChange,
+}: MoodSliderProps) {
   const currentMood = getMood(value);
+
+  React.useEffect(() => {
+    if (onMoodTitleChange) {
+      onMoodTitleChange(currentMood.label);
+    }
+  }, [value, currentMood.label, onMoodTitleChange]);
 
   return (
     <div className="w-full flex flex-col items-center gap-6">
       <div className="flex flex-col items-center">
-        <div className="text-6xl">{currentMood.emoji}</div>
-        <div className="text-gray-700 text-lg font-medium">{currentMood.label}</div>
+        <img
+          src={`/images/${currentMood.image}`}
+          alt={currentMood.label}
+          className="w-20 h-20 object-contain"
+        />
+        <div className="text-gray-700 text-lg font-medium">
+          {currentMood.label}
+        </div>
       </div>
 
       <Slider.Root
         className="relative flex items-center select-none touch-none w-full h-7"
         min={0}
-        max={6}
+        max={10}
         step={0.01}
         value={[value]}
         onValueChange={(val) => onChange(val[0])}

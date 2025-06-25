@@ -1,7 +1,7 @@
 "use client";
 
 import RoleSwitcher from "./RoleSwitcher";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "../contexts/UserContext";
 import { useEffect, useState } from "react";
 import IndividualComponent from "../app/(userComponents)/_feature/IndividualComponent";
 import AdminComponent from "../app/(adminComponents)/_feature/AdminComponent";
@@ -9,8 +9,8 @@ import { useRouter } from "next/navigation";
 import MoodlyLogo from "./ui/MoodlyLogo";
 import ProfileSVG from "./ui/ProfileSVG";
 type PropsType = {
-  toggleMode: () => void;
-  isIndividual: Boolean;
+  toggleMode?: () => void;
+  isIndividual?: boolean;
 };
 const Header = ({ toggleMode, isIndividual }: PropsType) => {
   const router = useRouter();

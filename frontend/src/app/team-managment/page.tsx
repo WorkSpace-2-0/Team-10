@@ -1,6 +1,4 @@
-import Header from "@/components/Header";
-import { Selection } from "./_components/Selection";
-import { TeamsData } from "./_components/TeamsData";
+
 
 const teamManagment = () => {
   return (

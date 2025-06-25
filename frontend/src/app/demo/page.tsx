@@ -43,7 +43,7 @@ const Demo = () => {
             disabled={loading || step !== 0}
             onClick={() =>
               callApi(
-                "http://localhost:9999/api/demo/insertLowMoodStreakAllUsers",
+                `${process.env.NEXT_PUBLIC_BASE_URL}/api/demo/insertLowMoodStreakAllUsers`,
                 "Inserted 5-day low mood streak for all users"
               )
             }
