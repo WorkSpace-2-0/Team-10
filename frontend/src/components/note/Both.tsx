@@ -55,9 +55,12 @@ const BothSections = () => {
 
   const handleDelete = async (moodId: string) => {
     try {
-      const res = await fetch(`http://localhost:9999/mood/delete/${moodId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/mood/delete/${moodId}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!res.ok) return console.error("Failed to delete mood");
       setMoods((prev) => prev.filter((m) => m._id !== moodId));
     } catch (err) {

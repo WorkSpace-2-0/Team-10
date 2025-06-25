@@ -21,7 +21,7 @@ const MoodComponent = () => {
     const fetchMoods = async () => {
       try {
         const res = await fetch(
-          `http://localhost:9999/mood/moods/user/${userId}`
+          `${process.env.NEXT_PUBLIC_BASE_URL}/mood/moods/user/${userId}`
         );
         const data = await res.json();
 
@@ -41,7 +41,7 @@ const MoodComponent = () => {
   }, [userId]);
 
   const getMoodImage = (title: string) => {
-    const lowerTitle = title
+    const lowerTitle = title;
     switch (lowerTitle) {
       case "Хэцүү":
         return "images/angry.png";
@@ -51,8 +51,8 @@ const MoodComponent = () => {
         return "images/sad.png";
       case "Хэвийн":
         return "images/neutral.png";
-        case "Супер":
-          return "images/awesome.png"
+      case "Супер":
+        return "images/awesome.png";
     }
   };
 
