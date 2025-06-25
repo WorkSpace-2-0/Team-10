@@ -30,10 +30,10 @@ const AdminAnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
 }) => {
   const participantCount = summary?.participantCount ?? 0;
   const totalUsers = summary?.totalUsers ?? 1;
-  const participantPercentage = ((totalUsers / participantCount) * 100).toFixed(
+  const participantPercentage = ((participantCount / totalUsers) * 100).toFixed(
     2
   );
-  const participantFraction = `${totalUsers}/${participantCount}`;
+  const participantFraction = `${participantCount}/${totalUsers}`;
 
   const stats = [
     {

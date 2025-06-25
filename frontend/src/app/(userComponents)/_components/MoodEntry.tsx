@@ -34,10 +34,17 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
           body: JSON.stringify({ moodScore: mood, note, moodTitle }),
         }
       );
+      console.log(response);
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Алдаа гарлаа");
+      }
+      const data = await response.json();
+      console.log(data);
+
+      if (data.reward) {
+        alert(`🎉 Та ${data.reward} урамшуулал авлаа!`);
       }
 
       setMessage("Амжилттай хадгалагдлаа!");

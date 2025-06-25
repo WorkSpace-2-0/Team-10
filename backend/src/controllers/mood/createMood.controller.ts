@@ -17,12 +17,12 @@ export const createMood = async (req: Request, res: Response) => {
       moodScore,
       note,
       moodTitle,
-
     });
 
     const saveMood = await newMood.save();
 
     const reward = await checkStreakAndReward(userId);
+
     if (reward) {
       await saveUserReward(userId, reward);
     }
@@ -30,7 +30,7 @@ export const createMood = async (req: Request, res: Response) => {
     res.status(201).json({
       success: true,
       mood: saveMood,
-      reward: reward || undefined,
+      reward: reward ?? null, // << include even if null
     });
   } catch (error) {
     console.error(error);
