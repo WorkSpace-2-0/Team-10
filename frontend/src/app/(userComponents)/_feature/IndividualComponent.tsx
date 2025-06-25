@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import UserAnalytics from "../_components/Analytics/UserAnalytics";
 import MoodEntry from "../_components/MoodEntry";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "../../../contexts/UserContext";
 UserAnalytics;
 
 const weekdays = ["Да", "Мя", "Лха", "Пү", "Ба"];

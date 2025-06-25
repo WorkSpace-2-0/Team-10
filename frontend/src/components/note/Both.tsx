@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "../ui/calendar";
 import { Trash } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import MoodComponent from "./MoodImage";

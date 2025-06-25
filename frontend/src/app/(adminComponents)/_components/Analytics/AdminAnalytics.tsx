@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
-import MoodChart from "@/app/(userComponents)/_components/Analytics/MoodChart";
-import AnalyticsControls from "@/app/(userComponents)/_components/Analytics/AnalyticsControls";
+import MoodChart from "../../../(userComponents)/_components/Analytics/MoodChart";
+import AnalyticsControls from "../../../(userComponents)/_components/Analytics/AnalyticsControls";
 import AdminAnalyticsSummary from "./AdminAnalyticsSummary";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "../../../../contexts/UserContext";
 
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 

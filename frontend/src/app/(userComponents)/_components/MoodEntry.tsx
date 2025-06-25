@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "../../../components/ui/button";
+import { Textarea } from "../../../components/ui/textarea";
 import MoodSlider from "./Slider";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "../../../contexts/UserContext";
 
 type MoodEntryProps = {
   onSuccess?: () => void;
@@ -60,11 +60,6 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
         <h1 className="text-2xl font-semibold mb-6">
           Та өнөөдөр ямар сэтгэгдэлтэй байна вэ?
         </h1>
-
-        <div className="text-base font-medium text-gray-700 mb-6">
-          {moodTitle}
-        </div>
-
         <MoodSlider
           value={mood}
           onChange={setMood}
