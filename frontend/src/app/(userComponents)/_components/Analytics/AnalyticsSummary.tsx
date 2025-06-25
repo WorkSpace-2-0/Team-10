@@ -1,7 +1,7 @@
 "use client";
 
-import SmileEmoji from "@/components/ui/emojis/smileEmoji";
 import React from "react";
+import SmileEmoji from "@/components/ui/emojis/SmileEmoji";
 
 interface AnalyticsSummaryProps {
   summary: {
@@ -26,10 +26,15 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
   summary,
   range,
 }) => {
+  const isWeekDay = (day: string): day is keyof typeof WeekDayTranslation =>
+    day in WeekDayTranslation;
   const stats = [
     {
       title: "Таний хамгийн өөдрөг өдөр",
-      value: summary?.bestDay ? WeekDayTranslation[summary.bestDay] : "N/A",
+      value:
+        summary?.bestDay && isWeekDay(summary.bestDay)
+          ? WeekDayTranslation[summary.bestDay]
+          : "N/A",
       decription: `Сүүлийн ${range} хоногт таны хамгийн өөдрөг байсан өдөр`,
     },
     {

@@ -9,8 +9,8 @@ import { useRouter } from "next/navigation";
 import MoodlyLogo from "./ui/MoodlyLogo";
 import ProfileSVG from "./ui/ProfileSVG";
 type PropsType = {
-  toggleMode: () => void;
-  isIndividual: Boolean;
+  toggleMode?: () => void;
+  isIndividual?: boolean;
 };
 const Header = ({ toggleMode, isIndividual }: PropsType) => {
   const router = useRouter();

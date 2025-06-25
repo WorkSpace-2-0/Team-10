@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import UserAnalytics from "../_components/Analytics/UserAnalytics";
 import MoodEntry from "../_components/MoodEntry";
+import { useUser } from "@/contexts/UserContext";
 UserAnalytics;
 
 const weekdays = ["Да", "Мя", "Лха", "Пү", "Ба"];
@@ -19,8 +20,7 @@ const moodToEmoji: Record<string, string> = {
 export default function App() {
   const [submitted, setSubmitted] = useState(false);
   const [moods, setMoods] = useState<any[]>([]);
-  const userName = "Jolo";
-  const userId = "68597d890e5c6aa50243a223";
+  const { name, userId } = useUser();
 
   useEffect(() => {
     const fetchMoods = async () => {
@@ -77,10 +77,10 @@ export default function App() {
   return (
     <div className="h-full w-full flex items-center flex-col gap-6 justify-center bg-white px-4 py-10">
       {!submitted ? (
-        <MoodEntry onSuccess={handleSuccess} userName={userName} />
+        <MoodEntry onSuccess={handleSuccess} name={name} />
       ) : (
         <div className="flex flex-col items-center text-center w-full h-auto">
-          <h2 className="text-xl font-semibold mb-2">Сайн уу, {userName}</h2>
+          <h2 className="text-xl font-semibold mb-2">Сайн уу, {name}</h2>
           <h1 className="text-2xl font-bold mb-2">
             Мэдрэмжээ хуваалцсанд баярлалаа.
           </h1>

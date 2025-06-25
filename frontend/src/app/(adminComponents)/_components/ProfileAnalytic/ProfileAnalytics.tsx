@@ -24,10 +24,12 @@ const ProfileAnalytics = () => {
   const [stats, setStats] = useState<StatsResponse | null>(null);
 
   useEffect(() => {
-    axios.get("http://localhost:9999/stats/getTopChoice").then((res) => {
-      setStats(res.data);
-      console.log(res.data);
-    });
+    axios
+      .get(`${process.env.NEXT_PUBLIC_BASE_URL}/stats/getTopChoice`)
+      .then((res) => {
+        setStats(res.data);
+        console.log(res.data);
+      });
   }, []);
 
   if (!stats) return <div>Loading...</div>;
