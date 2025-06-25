@@ -43,10 +43,10 @@ export const TeamsData = () => {
 
         {data &&
           data.slice(0, 7).map((users) => (
-            <div className="self-stretch pl-7 pr-6 py-3 odd:bg-white even:bg-gray-50 inline-flex justify-between items-center last:rounded-b-2xl">
+            <div key={users.email} className="self-stretch pl-7 pr-6 py-3 odd:bg-white even:bg-gray-50 inline-flex justify-between items-center last:rounded-b-2xl">
               <div className="inline-flex justify-between w-full">
-                <div className="w-72 justify-start">{users.userName}</div>
-                <div className="w-48 justify-start">{users.email}</div>
+                <div key={users.userName} className="w-72 justify-start">{users.userName}</div>
+                <div key={users.email} className="w-48 justify-start">{users.email}</div>
                 <div className="w-32 h-10 justify-center gap-2.5">
                   <div className="items-center gap-2 inline-flex">
                     {users.role === "USER" && (
@@ -55,7 +55,7 @@ export const TeamsData = () => {
                     {users.role === "ADMIN" && (
                       <div className="w-2 h-2 relative bg-[#84ACFA] rounded-full"></div>
                     )}
-                    <div className="">{users.role}</div>
+                    <div key={users.role} className="">{users.role}</div>
                   </div>
                 </div>
               </div>
