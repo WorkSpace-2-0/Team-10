@@ -1,60 +1,94 @@
 import mongoose from "mongoose";
 import dayjs from "dayjs";
-import { moodEntry } from "../src/models/mood.entry";
+import utc from "dayjs/plugin/utc";
+import { MoodEntry } from "../src/models/mood.entry";
+
+dayjs.extend(utc);
+
 const MONGO_URI =
-  "mongodb+srv://workspace20250720:Lxgiwyl0@workspace.sx6rlqf.mongodb.net/"; // replace with your DB
+  "mongodb+srv://workspace20250720:Lxgiwyl0@workspace.sx6rlqf.mongodb.net/";
 
-// Create 10 fake userIds
-const fakeUserIds = Array.from(
-  { length: 10 },
-  () => new mongoose.Types.ObjectId()
-);
+// Static user IDs as strings
+const userIds = [
+  "685509af5e4b694cbf130817",
+  "6859402be77aef6a6ae0d461",
+  "68597d890e5c6aa50243a223",
+  "685b882082250a45dbfa804f",
+  "685b883282250a45dbfa8053",
+  "685b884982250a45dbfa8056",
+  "685b885082250a45dbfa8059",
+  "685b885882250a45dbfa805c",
+  "685b886682250a45dbfa805f",
+];
 
-// Generate random mood score (0.0 to 10.0)
-const randomMood = () => +(Math.random() * 10).toFixed(1);
+// Get mood title from score
+const getMoodTitle = (score: number): string => {
+  const moods = [
+    { label: "Хэцүү", min: 0, max: 2 },
+    { label: "Тавгүй", min: 2, max: 4 },
+    { label: "Хэвийн", min: 4, max: 6 },
+    { label: "Дажгүй шүү", min: 6, max: 8 },
+    { label: "Супер", min: 8, max: 10.01 },
+  ];
 
-// Get weekday-only dates from start to end
+  return moods.find((m) => score >= m.min && score < m.max)?.label || "Хэвийн";
+};
+
+// Generate all weekday dates between start and end (inclusive)
 const getWeekdayDates = (start: string, end: string): Date[] => {
-  const days: Date[] = [];
-  let current = dayjs(start);
-  const endDate = dayjs(end);
+  const result: Date[] = [];
+  let current = dayjs.utc(start);
+  const endDate = dayjs.utc(end);
 
-  while (current.isBefore(endDate)) {
-    const day = current.day(); // 0 = Sunday, 6 = Saturday
-    if (day !== 0 && day !== 6) {
-      days.push(current.toDate());
+  while (!current.isAfter(endDate)) {
+    const weekday = current.day();
+    if (weekday !== 0 && weekday !== 6) {
+      result.push(current.toDate());
     }
     current = current.add(1, "day");
   }
-  return days;
+
+  return result;
 };
 
+interface MoodEntryType {
+  userId: mongoose.Types.ObjectId;
+  moodScore: number;
+  moodTitle: string;
+  note: string;
+  createdAt: Date;
+}
+
 const seed = async () => {
-  await mongoose.connect(MONGO_URI);
-  console.log("✅ Connected to MongoDB");
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log("✅ Connected to MongoDB");
 
-  await moodEntry.deleteMany({});
-  console.log("🧹 Cleared mood entries");
+    const allDates = getWeekdayDates("2025-03-01", "2025-06-21");
+    const entries: MoodEntryType[] = [];
 
-  const allDates = getWeekdayDates("2025-03-01", "2025-06-21"); // ~3 weeks
-
-  const testData = [];
-
-  for (const userId of fakeUserIds) {
-    for (const date of allDates) {
-      testData.push({
-        userId,
-        moodScore: randomMood(),
-        createdAt: date,
-      });
+    for (const userId of userIds) {
+      for (const date of allDates) {
+        const score = +(Math.random() * 5 + 5).toFixed(1); // score between 5 and 10
+        entries.push({
+          userId: new mongoose.Types.ObjectId(userId),
+          moodScore: score,
+          moodTitle: getMoodTitle(score),
+          note: "demo",
+          createdAt: date,
+        });
+      }
     }
+
+    await MoodEntry.insertMany(entries);
+    console.log(`✅ Inserted ${entries.length} demo mood entries`);
+
+    await mongoose.disconnect();
+    console.log("🔌 Disconnected");
+  } catch (err) {
+    console.error("❌ Seed error:", err);
+    process.exit(1);
   }
-
-  await moodEntry.insertMany(testData);
-  console.log(`✅ Inserted ${testData.length} mood entries for 10 users`);
-
-  await mongoose.disconnect();
-  console.log("🔌 Disconnected");
 };
 
 seed();
