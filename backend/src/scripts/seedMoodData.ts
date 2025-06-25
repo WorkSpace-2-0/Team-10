@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { User } from "../models/user.model";
-import { moodEntry } from "../models/mood.entry";
+import { MoodEntry } from "../models/mood.entry";
 
 const MONGO_URI =
   "mongodb+srv://workspace20250720:Lxgiwyl0@workspace.sx6rlqf.mongodb.net/";
@@ -62,7 +62,7 @@ const seed = async () => {
     }
     console.log(`👥 Found ${users.length} users`);
 
-    await moodEntry.deleteMany({});
+    await MoodEntry.deleteMany({});
     console.log("🧹 Cleared mood entries");
 
     const allDates = getWeekdayDates("2025-03-01", "2025-06-21");
@@ -81,7 +81,7 @@ const seed = async () => {
       }
     }
 
-    await moodEntry.insertMany(testData);
+    await MoodEntry.insertMany(testData);
     console.log(
       `✅ Inserted ${testData.length} mood entries for ${users.length} users`
     );
