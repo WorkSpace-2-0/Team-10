@@ -4,26 +4,26 @@ import * as React from "react";
 import { Calendar } from "../ui/calendar";
 import { Trash } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
-import MoodComponent from "./MoodImage";
 import { format } from "date-fns";
+import MoodComponent from "./MoodImage";
 
 const BothSections = () => {
   const [dates, setDates] = React.useState<Date | undefined>(new Date());
   const [moods, setMoods] = React.useState<any[]>([]);
 
-const getUserIdFromToken = () => {
-  if (typeof window === "undefined") return null; 
+  const getUserIdFromToken = () => {
+    if (typeof window === "undefined") return null;
 
-  const token = localStorage.getItem("token");
-  if (!token) return null;
+    const token = localStorage.getItem("token");
+    if (!token) return null;
 
-  try {
-    const decoded: any = jwtDecode(token);
-    return decoded.userId;
-  } catch (e) {
-    return null;
-  }
-};
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.userId;
+    } catch (e) {
+      return null;
+    }
+  };
 
   const userId = getUserIdFromToken();
 
@@ -31,7 +31,7 @@ const getUserIdFromToken = () => {
     const fetchMoods = async () => {
       try {
         const res = await fetch(
-          `http://localhost:9999/mood/moods/user/${userId}`
+          `${process.env.NEXT_PUBLIC_BASE_URL}/mood/moods/user/${userId}`
         );
         const data = await res.json();
 
@@ -51,9 +51,12 @@ const getUserIdFromToken = () => {
 
   const handleDelete = async (moodId: string) => {
     try {
-      const res = await fetch(`http://localhost:9999/mood/delete/${moodId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/mood/delete/${moodId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!res.ok) {
         console.error("Failed to delete mood");
@@ -111,7 +114,7 @@ const getUserIdFromToken = () => {
     if (!date) return;
 
     if (dates && date.getTime() === dates.getTime()) {
-      setDates(undefined); 
+      setDates(undefined);
     } else {
       setDates(date);
     }
