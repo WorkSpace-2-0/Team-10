@@ -44,15 +44,15 @@ const MoodComponent = () => {
     const lowerTitle = title
     switch (lowerTitle) {
       case "Хэцүү":
-        return "angry.png";
-      case "Дажгүй шүү":
-        return "happy.png";
+        return "images/angry.png";
+      case "Дажгүй":
+        return "images/happy.png";
       case "Тавгүй":
-        return "sad.png";
+        return "images/sad.png";
       case "Хэвийн":
-        return "neutral.png";
+        return "images/neutral.png";
         case "Супер":
-          return "awesome.png"
+          return "images/awesome.png"
     }
   };
 
