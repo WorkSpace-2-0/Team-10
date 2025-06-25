@@ -1,0 +1,561 @@
+diff --git a/backend/src/controllers/mood/createMood.controller.ts b/backend/src/controllers/mood/createMood.controller.ts
+index 293d5b7..8baa1b5 100644
+--- a/backend/src/controllers/mood/createMood.controller.ts
++++ b/backend/src/controllers/mood/createMood.controller.ts
+@@ -1,21 +1,23 @@
+ import { Request, Response } from "express";
+-import { moodEntry } from "../../models/mood.entry";
++import { MoodEntry } from "../../models/mood.entry";
+ import { checkStreakAndReward } from "../../middlewares/checkAndRewardUser";
+ import { saveUserReward } from "../../services/rewardService";
+ 
+ export const createMood = async (req: Request, res: Response) => {
+   try {
+     const userId = req.params.userId;
+-    const { moodScore, note } = req.body;
++    const { moodScore, note, moodTitle } = req.body;
+ 
+     if (!userId) {
+       res.status(400).json({ error: "UserId is required" });
+     }
+ 
+-    const newMood = new moodEntry({
++    const newMood = new MoodEntry({
+       userId,
+       moodScore,
+       note,
++      moodTitle,
++
+     });
+ 
+     const saveMood = await newMood.save();
+diff --git a/backend/src/controllers/mood/getMood.controller.ts b/backend/src/controllers/mood/getMood.controller.ts
+index 974bd0e..acab7ad 100644
+--- a/backend/src/controllers/mood/getMood.controller.ts
++++ b/backend/src/controllers/mood/getMood.controller.ts
+@@ -1,28 +1,112 @@
++// src/controllers/moodController.ts
+ import { Request, Response } from "express";
+-import { moodEntry } from "../../models/mood.entry";
++import { MoodEntry } from "../../models/mood.entry";
+ 
+-export const getAllMoods = async (_req: Request, res: Response) => {
++type FormattedMood = {
++  _id: string;
++  userId: string;
++  moodScore: number;
++  moodTitle: string;
++  note: string;
++  createdAt: string;
++};
++
++// Updated formatting function
++function formatCreatedAt(date: Date): string {
++  const days = [
++    "Sunday",
++    "Monday",
++    "Tuesday",
++    "Wednesday",
++    "Thursday",
++    "Friday",
++    "Saturday",
++  ];
++  const months = [
++    "January",
++    "February",
++    "March",
++    "April",
++    "May",
++    "June",
++    "July",
++    "August",
++    "September",
++    "October",
++    "November",
++    "December",
++  ];
++
++  const getOrdinal = (n: number) => {
++    if (n > 3 && n < 21) return "th";
++    switch (n % 10) {
++      case 1:
++        return "st";
++      case 2:
++        return "nd";
++      case 3:
++        return "rd";
++      default:
++        return "th";
++    }
++  };
++
++  const weekday = days[date.getDay()];
++  const month = months[date.getMonth()];
++  const day = date.getDate();
++  const ordinal = getOrdinal(day);
++  const year = date.getFullYear();
++  const hours = date.getHours().toString().padStart(2, "0");
++  const minutes = date.getMinutes().toString().padStart(2, "0");
++
++  return `${weekday},\n${month} ${day}${ordinal}, ${year},\n${hours}:${minutes}`;
++}
++
++// Get all moods
++export const getAllMoods = async (
++  _req: Request,
++  res: Response
++): Promise<any> => {
+   try {
+-    const moods = await moodEntry.find().sort({ createdAt: -1 });
+-    res.json(moods);
++    const moods = await MoodEntry.find().sort({ createdAt: -1 });
++
++    const formattedMoods: FormattedMood[] = moods.map((mood: any) => ({
++      _id: mood._id.toString(),
++      userId: mood.userId.toString(),
++      moodScore: mood.moodScore,
++      moodTitle: mood.moodTitle,
++      note: mood.note,
++      createdAt: formatCreatedAt(mood.createdAt),
++    }));
++
++    res.json(formattedMoods);
+   } catch (error) {
+     console.error(error);
+     res.status(500).json({ error: "Server error" });
+   }
+ };
+ 
+-export const getUserMoods = async (req: Request, res: Response) => {
++// Get moods for a specific user
++export const getUserMoods = async (
++  req: Request,
++  res: Response
++): Promise<any> => {
+   try {
+     const { userId } = req.params;
++    if (!userId) return res.status(400).json({ error: "UserId is required" });
+ 
+-    if (!userId) {
+-      res.status(400).json({ error: "UserId is required" });
+-    }
++    const moods = await MoodEntry.find({ userId }).sort({ createdAt: -1 });
+ 
+-    const filter: any = { userId };
++    const formattedMoods: FormattedMood[] = moods.map((mood: any) => ({
++      _id: mood._id.toString(),
++      userId: mood.userId.toString(),
++      moodScore: mood.moodScore,
++      moodTitle: mood.moodTitle,
++      note: mood.note,
++      createdAt: formatCreatedAt(mood.createdAt),
++    }));
+ 
+-    const moods = await moodEntry.find(filter).sort({ createdAt: -1 });
+-    res.json(moods);
++    res.json(formattedMoods);
+   } catch (error) {
+     console.error(error);
+     res.status(500).json({ error: "Server error" });
+diff --git a/backend/src/controllers/stats/analytic.controller.ts b/backend/src/controllers/stats/analytic.controller.ts
+index cb77385..cd7a19a 100644
+--- a/backend/src/controllers/stats/analytic.controller.ts
++++ b/backend/src/controllers/stats/analytic.controller.ts
+@@ -1,5 +1,5 @@
+ import { Request, Response } from "express";
+-import { moodEntry } from "../../models/mood.entry";
++import { MoodEntry } from "../../models/mood.entry";
+ import dayjs from "dayjs";
+ import isoWeek from "dayjs/plugin/isoWeek";
+ import { countConsecutiveMoodEntryDays } from "../../middlewares/statsHelper";
+@@ -49,7 +49,7 @@ export const getMoodChart = async (req: Request, res: Response) => {
+     const filter: any = { createdAt: { $gte: start.toDate() } };
+     if (userId) filter.userId = userId;
+ 
+-    const entries = await moodEntry.find(filter).lean();
++    const entries = await MoodEntry.find(filter).lean();
+ 
+     const filteredEntries = entries.filter((entry) => {
+       const dayName = dayjs(entry.createdAt).format("dddd");
+@@ -103,8 +103,8 @@ export const getMoodSummary = async (req: Request, res: Response) => {
+     }
+ 
+     const [entries, prevEntries] = await Promise.all([
+-      moodEntry.find(currentFilter).lean(),
+-      moodEntry.find(prevFilter).lean(),
++      MoodEntry.find(currentFilter).lean(),
++      MoodEntry.find(prevFilter).lean(),
+     ]);
+ 
+     const filteredEntries = entries.filter((entry) => {
+diff --git a/backend/src/middlewares/checkTenDaysStreak.ts b/backend/src/middlewares/checkTenDaysStreak.ts
+index 25ac50b..4d3d795 100644
+--- a/backend/src/middlewares/checkTenDaysStreak.ts
++++ b/backend/src/middlewares/checkTenDaysStreak.ts
+@@ -1,4 +1,4 @@
+-import { moodEntry } from "../models/mood.entry";
++import { MoodEntry } from "../models/mood.entry";
+ 
+ export async function hasTenDayMoodEntryStreak(
+   userId: string,
+@@ -30,7 +30,7 @@ export async function hasTenDayMoodEntryStreak(
+       999
+     );
+ 
+-    const count = await moodEntry.countDocuments({
++    const count = await MoodEntry.countDocuments({
+       userId,
+       date: { $gte: start, $lte: end },
+     });
+diff --git a/backend/src/middlewares/statsHelper.ts b/backend/src/middlewares/statsHelper.ts
+index 190d661..b6a3a95 100644
+--- a/backend/src/middlewares/statsHelper.ts
++++ b/backend/src/middlewares/statsHelper.ts
+@@ -1,4 +1,4 @@
+-import { moodEntry } from "../models/mood.entry";
++import { MoodEntry } from "../models/mood.entry";
+ import utc from "dayjs/plugin/utc";
+ import dayjs from "dayjs";
+ dayjs.extend(utc);
+@@ -20,7 +20,7 @@ export async function countConsecutiveMoodEntryDays(
+     const start = currentDate.startOf("day").toDate();
+     const end = currentDate.endOf("day").toDate();
+ 
+-    const count = await moodEntry.countDocuments({
++    const count = await MoodEntry.countDocuments({
+       userId,
+       createdAt: { $gte: start, $lte: end },
+     });
+diff --git a/backend/src/models/mood.entry.ts b/backend/src/models/mood.entry.ts
+index 0c67b1f..002d407 100644
+--- a/backend/src/models/mood.entry.ts
++++ b/backend/src/models/mood.entry.ts
+@@ -13,7 +13,15 @@ const moodEntrySchema = new mongoose.Schema({
+   note: {
+     type: String,
+   },
+-  createdAt: { type: Date, default: Date.now },
++  moodTitle: {
++    type: String,
++    required: true,
++  },
++  createdAt: {
++    type: Date,
++    default: Date.now,
++  },
+ });
+ 
+-export const moodEntry = mongoose.model("moodEntry", moodEntrySchema);
++export const MoodEntry = mongoose.model("MoodEntry", moodEntrySchema);
++
+diff --git a/backend/src/routers/demo.router.ts b/backend/src/routers/demo.router.ts
+index 00dc387..369f191 100644
+--- a/backend/src/routers/demo.router.ts
++++ b/backend/src/routers/demo.router.ts
+@@ -2,7 +2,7 @@ import express from "express";
+ import dayjs from "dayjs";
+ import utc from "dayjs/plugin/utc";
+ import { User } from "../models/user.model";
+-import { moodEntry } from "../models/mood.entry";
++import { MoodEntry } from "../models/mood.entry";
+ import {
+   sendStreakAlertIfNeeded,
+   sendPeriodicAlertIfNeeded,
+@@ -35,7 +35,7 @@ demoRouter.post("/demo/insertLowMoodStreakAllUsers", async (req, res) => {
+       }
+     }
+ 
+-    await moodEntry.insertMany(entries);
++    await MoodEntry.insertMany(entries);
+     res.json({
+       success: true,
+       message: "Inserted 5-day low mood streak for all users",
+@@ -69,7 +69,7 @@ demoRouter.post("/demo/insertPeriodicLowMoodAllUsers", async (req, res) => {
+       }
+     }
+ 
+-    await moodEntry.insertMany(entries);
++    await MoodEntry.insertMany(entries);
+     res.json({
+       success: true,
+       message: "Inserted periodic low mood data for all users",
+diff --git a/backend/src/routers/mood.router.ts b/backend/src/routers/mood.router.ts
+index 7cc91ba..bc8704b 100644
+--- a/backend/src/routers/mood.router.ts
++++ b/backend/src/routers/mood.router.ts
+@@ -4,9 +4,11 @@ import {
+   getAllMoods,
+   getUserMoods,
+ } from "../controllers/mood/getMood.controller";
++import { deleteMood } from "../controllers/mood/deleteMood.controller";
+ 
+ export const MoodRouter = express.Router();
+ 
+ MoodRouter.post("/newMood/:userId", createMood);
+ MoodRouter.get("/", getAllMoods);
+ MoodRouter.get("/moods/user/:userId", getUserMoods);
++MoodRouter.delete("/delete", deleteMood)
+\ No newline at end of file
+diff --git a/backend/src/routers/moodEntry.router.ts b/backend/src/routers/moodEntry.router.ts
+index 7e8610b..9c0dedc 100644
+--- a/backend/src/routers/moodEntry.router.ts
++++ b/backend/src/routers/moodEntry.router.ts
+@@ -1,2 +1,4 @@
+ import express from "express";
+ export const MoodEntryRouter = express.Router();
++
++
+diff --git a/backend/src/services/moodService.ts b/backend/src/services/moodService.ts
+index f801029..9f2d74b 100644
+--- a/backend/src/services/moodService.ts
++++ b/backend/src/services/moodService.ts
+@@ -1,6 +1,6 @@
+ import dayjs from "dayjs";
+ import utc from "dayjs/plugin/utc";
+-import { moodEntry } from "../models/mood.entry";
++import { MoodEntry } from "../models/mood.entry";
+ 
+ dayjs.extend(utc);
+ 
+@@ -17,7 +17,7 @@ export const fetchMoodEntries = async (
+   startDate: Date,
+   endDate: Date
+ ) => {
+-  return await moodEntry.find({
++  return await MoodEntry.find({
+     userId,
+     createdAt: { $gte: startOfDay(startDate), $lte: endOfDay(endDate) },
+   });
+diff --git a/frontend/package-lock.json b/frontend/package-lock.json
+index b620c7f..092bcb7 100644
+--- a/frontend/package-lock.json
++++ b/frontend/package-lock.json
+@@ -9,12 +9,14 @@
+       "version": "0.1.0",
+       "dependencies": {
+         "@radix-ui/react-dialog": "^1.1.14",
++        "@radix-ui/react-slot": "^1.2.3",
+         "@radix-ui/react-switch": "^1.2.5",
+         "axios": "^1.10.0",
+         "chart.js": "^4.5.0",
+         "chartjs-adapter-dayjs-4": "^1.0.4",
+         "class-variance-authority": "^0.7.1",
+         "clsx": "^2.1.1",
++        "date-fns": "^4.1.0",
+         "dayjs": "^1.11.13",
+         "formik": "^2.4.6",
+         "jsonwebtoken": "^9.0.2",
+@@ -23,6 +25,7 @@
+         "next": "15.3.3",
+         "react": "^19.0.0",
+         "react-chartjs-2": "^5.3.0",
++        "react-day-picker": "^9.7.0",
+         "react-dom": "^19.0.0",
+         "react-jwt": "^1.3.0",
+         "react-toastify": "^11.0.5",
+@@ -67,6 +70,12 @@
+         "node": ">=6.0.0"
+       }
+     },
++    "node_modules/@date-fns/tz": {
++      "version": "1.2.0",
++      "resolved": "https://registry.npmjs.org/@date-fns/tz/-/tz-1.2.0.tgz",
++      "integrity": "sha512-LBrd7MiJZ9McsOgxqWX7AaxrDjcFVjWH/tIKJd7pnR7McaslGYOP1QmmiBXdJH/H/yLCT+rcQ7FaPBUxRGUtrg==",
++      "license": "MIT"
++    },
+     "node_modules/@emnapi/runtime": {
+       "version": "1.4.3",
+       "resolved": "https://registry.npmjs.org/@emnapi/runtime/-/runtime-1.4.3.tgz",
+@@ -1624,6 +1633,22 @@
+       "integrity": "sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==",
+       "license": "MIT"
+     },
++    "node_modules/date-fns": {
++      "version": "4.1.0",
++      "resolved": "https://registry.npmjs.org/date-fns/-/date-fns-4.1.0.tgz",
++      "integrity": "sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==",
++      "license": "MIT",
++      "funding": {
++        "type": "github",
++        "url": "https://github.com/sponsors/kossnocorp"
++      }
++    },
++    "node_modules/date-fns-jalali": {
++      "version": "4.1.0-0",
++      "resolved": "https://registry.npmjs.org/date-fns-jalali/-/date-fns-jalali-4.1.0-0.tgz",
++      "integrity": "sha512-hTIP/z+t+qKwBDcmmsnmjWTduxCg+5KfdqWQvb2X/8C9+knYY6epN/pfxdDuyVlSVeFz0sM5eEfwIUQ70U4ckg==",
++      "license": "MIT"
++    },
+     "node_modules/dayjs": {
+       "version": "1.11.13",
+       "resolved": "https://registry.npmjs.org/dayjs/-/dayjs-1.11.13.tgz",
+@@ -2565,6 +2590,27 @@
+         "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+       }
+     },
++    "node_modules/react-day-picker": {
++      "version": "9.7.0",
++      "resolved": "https://registry.npmjs.org/react-day-picker/-/react-day-picker-9.7.0.tgz",
++      "integrity": "sha512-urlK4C9XJZVpQ81tmVgd2O7lZ0VQldZeHzNejbwLWZSkzHH498KnArT0EHNfKBOWwKc935iMLGZdxXPRISzUxQ==",
++      "license": "MIT",
++      "dependencies": {
++        "@date-fns/tz": "1.2.0",
++        "date-fns": "4.1.0",
++        "date-fns-jalali": "4.1.0-0"
++      },
++      "engines": {
++        "node": ">=18"
++      },
++      "funding": {
++        "type": "individual",
++        "url": "https://github.com/sponsors/gpbl"
++      },
++      "peerDependencies": {
++        "react": ">=16.8.0"
++      }
++    },
+     "node_modules/react-dom": {
+       "version": "19.1.0",
+       "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-19.1.0.tgz",
+diff --git a/frontend/package.json b/frontend/package.json
+index 8dd1d5b..f187316 100644
+--- a/frontend/package.json
++++ b/frontend/package.json
+@@ -10,12 +10,14 @@
+   },
+   "dependencies": {
+     "@radix-ui/react-dialog": "^1.1.14",
++    "@radix-ui/react-slot": "^1.2.3",
+     "@radix-ui/react-switch": "^1.2.5",
+     "axios": "^1.10.0",
+     "chart.js": "^4.5.0",
+     "chartjs-adapter-dayjs-4": "^1.0.4",
+     "class-variance-authority": "^0.7.1",
+     "clsx": "^2.1.1",
++    "date-fns": "^4.1.0",
+     "dayjs": "^1.11.13",
+     "formik": "^2.4.6",
+     "jsonwebtoken": "^9.0.2",
+@@ -24,6 +26,7 @@
+     "next": "15.3.3",
+     "react": "^19.0.0",
+     "react-chartjs-2": "^5.3.0",
++    "react-day-picker": "^9.7.0",
+     "react-dom": "^19.0.0",
+     "react-jwt": "^1.3.0",
+     "react-toastify": "^11.0.5",
+diff --git a/frontend/public/file.svg b/frontend/public/file.svg
+deleted file mode 100644
+index 004145c..0000000
+--- a/frontend/public/file.svg
++++ /dev/null
+@@ -1 +0,0 @@
+-<svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M14.5 13.5V5.41a1 1 0 0 0-.3-.7L9.8.29A1 1 0 0 0 9.08 0H1.5v13.5A2.5 2.5 0 0 0 4 16h8a2.5 2.5 0 0 0 2.5-2.5m-1.5 0v-7H8v-5H3v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1M9.5 5V2.12L12.38 5zM5.13 5h-.62v1.25h2.12V5zm-.62 3h7.12v1.25H4.5zm.62 3h-.62v1.25h7.12V11z" clip-rule="evenodd" fill="#666" fill-rule="evenodd"/></svg>
+\ No newline at end of file
+diff --git a/frontend/public/globe.svg b/frontend/public/globe.svg
+deleted file mode 100644
+index 567f17b..0000000
+--- a/frontend/public/globe.svg
++++ /dev/null
+@@ -1 +0,0 @@
+-<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><g clip-path="url(#a)"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.27 14.1a6.5 6.5 0 0 0 3.67-3.45q-1.24.21-2.7.34-.31 1.83-.97 3.1M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.48-1.52a7 7 0 0 1-.96 0H7.5a4 4 0 0 1-.84-1.32q-.38-.89-.63-2.08a40 40 0 0 0 3.92 0q-.25 1.2-.63 2.08a4 4 0 0 1-.84 1.31zm2.94-4.76q1.66-.15 2.95-.43a7 7 0 0 0 0-2.58q-1.3-.27-2.95-.43a18 18 0 0 1 0 3.44m-1.27-3.54a17 17 0 0 1 0 3.64 39 39 0 0 1-4.3 0 17 17 0 0 1 0-3.64 39 39 0 0 1 4.3 0m1.1-1.17q1.45.13 2.69.34a6.5 6.5 0 0 0-3.67-3.44q.65 1.26.98 3.1M8.48 1.5l.01.02q.41.37.84 1.31.38.89.63 2.08a40 40 0 0 0-3.92 0q.25-1.2.63-2.08a4 4 0 0 1 .85-1.32 7 7 0 0 1 .96 0m-2.75.4a6.5 6.5 0 0 0-3.67 3.44 29 29 0 0 1 2.7-.34q.31-1.83.97-3.1M4.58 6.28q-1.66.16-2.95.43a7 7 0 0 0 0 2.58q1.3.27 2.95.43a18 18 0 0 1 0-3.44m.17 4.71q-1.45-.12-2.69-.34a6.5 6.5 0 0 0 3.67 3.44q-.65-1.27-.98-3.1" fill="#666"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+\ No newline at end of file
+diff --git a/frontend/public/next.svg b/frontend/public/next.svg
+deleted file mode 100644
+index 5174b28..0000000
+--- a/frontend/public/next.svg
++++ /dev/null
+@@ -1 +0,0 @@
+-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 394 80"><path fill="#000" d="M262 0h68.5v12.7h-27.2v66.6h-13.6V12.7H262V0ZM149 0v12.7H94v20.4h44.3v12.6H94v21h55v12.6H80.5V0h68.7zm34.3 0h-17.8l63.8 79.4h17.9l-32-39.7 32-39.6h-17.9l-23 28.6-23-28.6zm18.3 56.7-9-11-27.1 33.7h17.8l18.3-22.7z"/><path fill="#000" d="M81 79.3 17 0H0v79.3h13.6V17l50.2 62.3H81Zm252.6-.4c-1 0-1.8-.4-2.5-1s-1.1-1.6-1.1-2.6.3-1.8 1-2.5 1.6-1 2.6-1 1.8.3 2.5 1a3.4 3.4 0 0 1 .6 4.3 3.7 3.7 0 0 1-3 1.8zm23.2-33.5h6v23.3c0 2.1-.4 4-1.3 5.5a9.1 9.1 0 0 1-3.8 3.5c-1.6.8-3.5 1.3-5.7 1.3-2 0-3.7-.4-5.3-1s-2.8-1.8-3.7-3.2c-.9-1.3-1.4-3-1.4-5h6c.1.8.3 1.6.7 2.2s1 1.2 1.6 1.5c.7.4 1.5.5 2.4.5 1 0 1.8-.2 2.4-.6a4 4 0 0 0 1.6-1.8c.3-.8.5-1.8.5-3V45.5zm30.9 9.1a4.4 4.4 0 0 0-2-3.3 7.5 7.5 0 0 0-4.3-1.1c-1.3 0-2.4.2-3.3.5-.9.4-1.6 1-2 1.6a3.5 3.5 0 0 0-.3 4c.3.5.7.9 1.3 1.2l1.8 1 2 .5 3.2.8c1.3.3 2.5.7 3.7 1.2a13 13 0 0 1 3.2 1.8 8.1 8.1 0 0 1 3 6.5c0 2-.5 3.7-1.5 5.1a10 10 0 0 1-4.4 3.5c-1.8.8-4.1 1.2-6.8 1.2-2.6 0-4.9-.4-6.8-1.2-2-.8-3.4-2-4.5-3.5a10 10 0 0 1-1.7-5.6h6a5 5 0 0 0 3.5 4.6c1 .4 2.2.6 3.4.6 1.3 0 2.5-.2 3.5-.6 1-.4 1.8-1 2.4-1.7a4 4 0 0 0 .8-2.4c0-.9-.2-1.6-.7-2.2a11 11 0 0 0-2.1-1.4l-3.2-1-3.8-1c-2.8-.7-5-1.7-6.6-3.2a7.2 7.2 0 0 1-2.4-5.7 8 8 0 0 1 1.7-5 10 10 0 0 1 4.3-3.5c2-.8 4-1.2 6.4-1.2 2.3 0 4.4.4 6.2 1.2 1.8.8 3.2 2 4.3 3.4 1 1.4 1.5 3 1.5 5h-5.8z"/></svg>
+\ No newline at end of file
+diff --git a/frontend/public/vercel.svg b/frontend/public/vercel.svg
+deleted file mode 100644
+index 7705396..0000000
+--- a/frontend/public/vercel.svg
++++ /dev/null
+@@ -1 +0,0 @@
+-<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#fff"/></svg>
+\ No newline at end of file
+diff --git a/frontend/public/window.svg b/frontend/public/window.svg
+deleted file mode 100644
+index b2b2a44..0000000
+--- a/frontend/public/window.svg
++++ /dev/null
+@@ -1 +0,0 @@
+-<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
+\ No newline at end of file
+diff --git a/frontend/src/app/globals.css b/frontend/src/app/globals.css
+index dc98be7..7a66263 100644
+--- a/frontend/src/app/globals.css
++++ b/frontend/src/app/globals.css
+@@ -120,3 +120,19 @@
+     @apply bg-background text-foreground;
+   }
+ }
++
++.has-mood {
++  position: relative;
++}
++
++.has-mood::after {
++  content: "";
++  position: absolute;
++  bottom: 6px; /* Adjust based on calendar cell padding */
++  left: 50%;
++  transform: translateX(-50%);
++  width: 60%;
++  height: 2px;
++  background-color: red;
++  border-radius: 1px;
++}
+diff --git a/frontend/src/app/note/page.tsx b/frontend/src/app/note/page.tsx
+index 41321f0..4d3fb6f 100644
+--- a/frontend/src/app/note/page.tsx
++++ b/frontend/src/app/note/page.tsx
+@@ -1,10 +1,17 @@
++"use client";
+ import Header from "@/components/Header";
+-
++import BothSections from "@/components/note/Both";
+ const Note = () => {
+   return (
+     <div className="w-screen h-screen">
+-      <Header />
+-      this is Note
++      <div className="w-full h-auto bg-[#FAFAFA] flex">
++        <div className="py-[2.5rem] px-[7.5rem]">
++          <div className="text-start justify-start pb-[28px] text-neutral-400 text-lg font-bold font-['Inter'] leading-tight">
++            Таны тэмдэглэлийг зөвхөн та л харах боломжтой.
++          </div>
++          <BothSections />
++        </div>
++      </div>
+     </div>
+   );
+ };
+diff --git a/package-lock.json b/package-lock.json
+index 32be99a..4ce7251 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -2,5 +2,20 @@
+   "name": "Team-10",
+   "lockfileVersion": 3,
+   "requires": true,
+-  "packages": {}
++  "packages": {
++    "": {
++      "dependencies": {
++        "jwt-decode": "^4.0.0"
++      }
++    },
++    "node_modules/jwt-decode": {
++      "version": "4.0.0",
++      "resolved": "https://registry.npmjs.org/jwt-decode/-/jwt-decode-4.0.0.tgz",
++      "integrity": "sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=18"
++      }
++    }
++  }
+ }

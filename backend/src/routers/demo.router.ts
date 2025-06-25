@@ -2,7 +2,7 @@ import express from "express";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { User } from "../models/user.model";
-import { moodEntry } from "../models/mood.entry";
+import { MoodEntry } from "../models/mood.entry";
 import {
   sendStreakAlertIfNeeded,
   sendPeriodicAlertIfNeeded,
@@ -35,7 +35,7 @@ demoRouter.post("/demo/insertLowMoodStreakAllUsers", async (req, res) => {
       }
     }
 
-    await moodEntry.insertMany(entries);
+    await MoodEntry.insertMany(entries);
     res.json({
       success: true,
       message: "Inserted 5-day low mood streak for all users",
@@ -69,7 +69,7 @@ demoRouter.post("/demo/insertPeriodicLowMoodAllUsers", async (req, res) => {
       }
     }
 
-    await moodEntry.insertMany(entries);
+    await MoodEntry.insertMany(entries);
     res.json({
       success: true,
       message: "Inserted periodic low mood data for all users",

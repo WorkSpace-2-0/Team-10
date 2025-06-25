@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { moodEntry } from "../../models/mood.entry";
+import { MoodEntry } from "../../models/mood.entry";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 import { countConsecutiveMoodEntryDays } from "../../middlewares/statsHelper";
@@ -49,7 +49,7 @@ export const getMoodChart = async (req: Request, res: Response) => {
     const filter: any = { createdAt: { $gte: start.toDate() } };
     if (userId) filter.userId = userId;
 
-    const entries = await moodEntry.find(filter).lean();
+    const entries = await MoodEntry.find(filter).lean();
 
     const filteredEntries = entries.filter((entry) => {
       const dayName = dayjs(entry.createdAt).format("dddd");
@@ -103,8 +103,8 @@ export const getMoodSummary = async (req: Request, res: Response) => {
     }
 
     const [entries, prevEntries] = await Promise.all([
-      moodEntry.find(currentFilter).lean(),
-      moodEntry.find(prevFilter).lean(),
+      MoodEntry.find(currentFilter).lean(),
+      MoodEntry.find(prevFilter).lean(),
     ]);
 
     const filteredEntries = entries.filter((entry) => {

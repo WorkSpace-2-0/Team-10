@@ -1,21 +1,23 @@
 import { Request, Response } from "express";
-import { moodEntry } from "../../models/mood.entry";
+import { MoodEntry } from "../../models/mood.entry";
 import { checkStreakAndReward } from "../../middlewares/checkAndRewardUser";
 import { saveUserReward } from "../../services/rewardService";
 
 export const createMood = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
-    const { moodScore, note } = req.body;
+    const { moodScore, note, moodTitle } = req.body;
 
     if (!userId) {
       res.status(400).json({ error: "UserId is required" });
     }
 
-    const newMood = new moodEntry({
+    const newMood = new MoodEntry({
       userId,
       moodScore,
       note,
+      moodTitle,
+
     });
 
     const saveMood = await newMood.save();
