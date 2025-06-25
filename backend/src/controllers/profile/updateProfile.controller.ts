@@ -15,7 +15,7 @@ export const updateProfile = async (req: Request, res: Response) => {
       },
     );
     if (!updateProfile) {
-      return res.status(404).json({ message: "Profile not found" });
+       res.status(404).json({ message: "Profile not found" });
     }
     res
       .status(200)
