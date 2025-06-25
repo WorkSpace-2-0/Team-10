@@ -11,11 +11,9 @@ type MoodEntryProps = {
   name?: string;
 };
 
-const moods = ["Angry", "Sad", "Neutral", "Happy", "Ecstatic"];
-const moodEmoji = ["😢", "😞", "🙂", "😊", "😄"];
-
 export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
   const [mood, setMood] = useState(2);
+  const [moodTitle, setMoodTitle] = useState("Хэвийн"); // Default
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -33,7 +31,7 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ moodScore: mood, note }),
+          body: JSON.stringify({ moodScore: mood, note, moodTitle }),
         }
       );
 
@@ -44,6 +42,7 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
 
       setMessage("Амжилттай хадгалагдлаа!");
       setMood(2);
+      setMoodTitle("Хэвийн");
       setNote("");
 
       if (onSuccess) onSuccess();
@@ -62,12 +61,15 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
           Та өнөөдөр ямар сэтгэгдэлтэй байна вэ?
         </h1>
 
-        {/* <div className="text-[64px] mb-2">{moodEmoji[mood]}</div> */}
         <div className="text-base font-medium text-gray-700 mb-6">
-          {moods[mood]}
+          {moodTitle}
         </div>
 
-        <MoodSlider value={mood} onChange={setMood} />
+        <MoodSlider
+          value={mood}
+          onChange={setMood}
+          onMoodTitleChange={setMoodTitle}
+        />
 
         <p className="text-sm text-gray-400 mb-6 mt-6">
           Таны тэмдэглэл зөвхөн танд л харагдах болно.
