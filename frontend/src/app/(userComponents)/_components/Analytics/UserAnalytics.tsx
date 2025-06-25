@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import MoodChart from "./MoodChart";
 import AnalyticsControls from "./AnalyticsControls";
 import AnalyticsSummary from "./AnalyticsSummary";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "../../../../contexts/UserContext";
 
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 

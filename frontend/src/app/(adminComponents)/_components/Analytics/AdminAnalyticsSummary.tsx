@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import SmileEmoji from "@/components/ui/emojis/SmileEmoji";
+import SmileEmoji from "../../../../components/ui/emojis/SmileEmoji";
 
 interface AnalyticsSummaryProps {
   summary: {

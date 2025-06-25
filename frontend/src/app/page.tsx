@@ -1,9 +1,9 @@
 "use client";
 
-import Header from "@/components/Header";
+import Header from "../components/Header";
 import AdminComponent from "./(adminComponents)/_feature/AdminComponent";
 import IndividualComponent from "./(userComponents)/_feature/IndividualComponent";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "../contexts/UserContext";
 import { useState, useEffect } from "react";
 
 export default function Home() {

@@ -1,6 +1,6 @@
 "use client";
-import Header from "@/components/Header";
-import BothSections from "@/components/note/Both";
+import Header from "../../components/Header";
+import BothSections from "../../components/note/Both";
 const Note = () => {
   return (
     <div className="w-screen h-screen">

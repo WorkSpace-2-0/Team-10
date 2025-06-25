@@ -41,7 +41,7 @@ const MoodComponent = () => {
   }, [userId]);
 
   const getMoodImage = (title: string) => {
-    const lowerTitle = title;
+    const lowerTitle = title
     switch (lowerTitle) {
       case "Хэцүү":
         return "angry.png";
@@ -51,8 +51,8 @@ const MoodComponent = () => {
         return "sad.png";
       case "Хэвийн":
         return "neutral.png";
-      case "Супер":
-        return "awesome.png";
+        case "Супер":
+          return "awesome.png"
     }
   };
 

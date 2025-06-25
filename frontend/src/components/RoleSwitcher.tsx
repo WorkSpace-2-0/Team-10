@@ -1,6 +1,6 @@
 "use client";
 
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "./ui/switch";
 
 type SwitcherType = {
   isIndividual?: boolean;
