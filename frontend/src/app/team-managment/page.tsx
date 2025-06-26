@@ -1,6 +1,5 @@
 import Header from "src/components/Header";
 import { TeamsData } from "./_components/TeamsData";
-import { Selection } from "./_components/Selection";
 
 const teamManagment = () => {
   return (
@@ -9,7 +8,6 @@ const teamManagment = () => {
       <div className="max-w-7xl w-full h-auto flex justify-center mt-10 -ml-8">
         <div className="w-4/5">
           <h1 className="text-3xl">Таны баг "Тэнгэрийн ташуур 2.0"</h1>
-          <Selection />
           <TeamsData />
         </div>
       </div>
