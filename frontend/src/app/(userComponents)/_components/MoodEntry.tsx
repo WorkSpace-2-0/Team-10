@@ -61,24 +61,30 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
   };
 
   return (
-    <div className="w-full h-auto bg-white flex items-center justify-center px-4">
-      <div className="w-[590px] h-auto flex flex-col justify-center items-center">
-        <h2 className="text-gray-600 text-lg mb-1">Сайн уу, {name}</h2>
-        <h1 className="text-2xl font-semibold mb-6">
+    <div className="w-full min-h-screen bg-white flex items-center justify-center text-center px-4 py-10">
+      <div className="w-[590px] flex flex-col justify-center items-center">
+        <h2 className="w-[487px] h-[23px] font-inter font-medium text-[18px] leading-[130%] text-center text-neutral-800 mb-1">
+          Сайн уу, {name}
+        </h2>
+
+        <h1 className="w-[487px] h-[31px] text-[24px] text-[#262626] font-medium leading-[130%] text-center mb-8">
           Та өнөөдөр ямар сэтгэгдэлтэй байна вэ?
         </h1>
+
         <MoodSlider
           value={mood}
           onChange={setMood}
           onMoodTitleChange={setMoodTitle}
         />
 
-        <p className="text-sm text-gray-400 mb-6 mt-6">
-          Таны тэмдэглэл зөвхөн танд л харагдах болно.
-          <br /> Багийн менежерт багийн нийт оноо л харагдана.
-        </p>
+        <div className="mt-6 mb-8 text-center">
+          <img
+            src="/images/text.png"
+            className="inline-block w-[300px] h-auto object-contain"
+          />
+        </div>
 
-        <p className="text-base font-semibold text-black-600 mb-2">
+        <p className="w-[250px] h-[20px] text-center font-medium text-[16px] leading-[20px] text-black mb-2">
           Тэмдэглэл үлдээх (заавал биш)
         </p>
 
@@ -86,17 +92,22 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
           placeholder="Би өнөөдөр..."
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="mt-4 text-center w-full"
-          rows={3}
+          className="w-[386px] h-[90px] flex items-center justify-center px-3 py-2 box-border bg-[#FAFAFA] border border-[#E5E5E5] rounded-[10px] text-center text-base font-normal placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
         />
 
-        <Button
+        <button
           onClick={handleSubmit}
           disabled={loading}
-          className="mt-6 w-full py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-md shadow-md"
+          className="mt-6 w-full flex justify-center disabled:cursor-not-allowed"
         >
-          {loading ? "Хадгалж байна..." : "Хадгалах"}
-        </Button>
+          <img
+            src={loading ? "/images/save.png" : "/images/save.png"}
+            alt="Хадгалах"
+            className={`h-10 transition-opacity ${
+              loading ? "opacity-50" : "hover:opacity-90"
+            }`}
+          />
+        </button>
 
         {message && (
           <p
