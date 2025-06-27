@@ -4,11 +4,13 @@ import * as React from "react";
 import { Calendar } from "../ui/calendar";
 import { Trash } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
-import { format } from "date-fns";
 import MoodComponent from "./MoodImage";
+import { format } from "date-fns";
+import { mn } from "date-fns/locale";
+import { formatWithOptions } from "date-fns/fp";
 
 const moodColorMap: Record<string, string> = {
-  Дажгүй: "mood-happy",
+  "Дажгүй шүү": "mood-happy",
   Тавгүй: "mood-sad",
   Хэцүү: "mood-angry",
   Супер: "mood-awesome",
@@ -26,7 +28,7 @@ const BothSections = () => {
     try {
       const decoded: any = jwtDecode(token);
       return decoded.userId;
-    } catch {
+    } catch (e) {
       return null;
     }
   };
@@ -37,7 +39,7 @@ const BothSections = () => {
     const fetchMoods = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/mood/moods/user/${userId}`
+          `http://localhost:9999/mood/moods/user/${userId}`
         );
         const data = await res.json();
         const moodsWithDate = data.map((mood: any) => ({
@@ -49,7 +51,6 @@ const BothSections = () => {
         console.error("Failed to fetch moods", err);
       }
     };
-
     if (userId) fetchMoods();
   }, [userId]);
 
@@ -58,8 +59,11 @@ const BothSections = () => {
       const res = await fetch(`http://localhost:9999/mood/delete/${moodId}`, {
         method: "DELETE",
       });
-      if (!res.ok) return console.error("Failed to delete mood");
-      setMoods((prev) => prev.filter((m) => m._id !== moodId));
+      if (!res.ok) {
+        console.error("Failed to delete mood");
+        return;
+      }
+      setMoods((prevMoods) => prevMoods.filter((m) => m._id !== moodId));
     } catch (err) {
       console.error("Error deleting mood:", err);
     }
@@ -70,15 +74,21 @@ const BothSections = () => {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate();
 
+  // Build moodDateMap for colored calendar underlines
   const moodDateMap = React.useMemo(() => {
-    const map = new Map<string, { date: Date; moodTitle: string }>();
+    const map: { date: Date; moodTitle: string }[] = [];
+    const seen = new Set<string>();
     moods.forEach((mood) => {
-      if (mood.createdAt instanceof Date && !isNaN(mood.createdAt.getTime())) {
-        const date = new Date(mood.createdAt);
-        const key = date.toDateString();
-        if (!map.has(key)) {
-          map.set(key, {
-            date: new Date(date.getFullYear(), date.getMonth(), date.getDate()),
+      const dateObj =
+        mood.createdAt instanceof Date
+          ? mood.createdAt
+          : new Date(mood.createdAt);
+      if (!isNaN(dateObj.getTime())) {
+        const key = dateObj.toISOString().slice(0, 10) + mood.moodTitle;
+        if (!seen.has(key)) {
+          seen.add(key);
+          map.push({
+            date: new Date(dateObj.toISOString().slice(0, 10)),
             moodTitle: mood.moodTitle,
           });
         }
@@ -87,9 +97,9 @@ const BothSections = () => {
     return map;
   }, [moods]);
 
+  // Build modifiers and modifiersClassNames for calendar
   const modifiers: Record<string, Date[]> = {};
   const modifiersClassNames: Record<string, string> = {};
-
   moodDateMap.forEach(({ date, moodTitle }) => {
     const className = moodColorMap[moodTitle] || "mood-neutral";
     if (!modifiers[className]) modifiers[className] = [];
@@ -107,12 +117,17 @@ const BothSections = () => {
     );
   }, [dates, moods]);
 
-  const formatMoodDate = (date: Date) =>
-    `${format(date, "EEEE")},\n${format(date, "MMMM do, yyyy")}\n${format(
-      date,
-      "HH:mm"
-    )}`;
+  const formatMoodDate = (date: Date) => {
+    const formatMN = formatWithOptions({ locale: mn });
+    const weekday = formatMN("EEEE", date); // Даваа гараг
+    const month = formatMN("M", date); // 6
+    const day = formatMN("d", date); // 16
+    const year = formatMN("yyyy", date); // 2025
+    const time = formatMN("HH:mm", date); // 12:48
+    return `${weekday}\n${month} сарын ${day}, ${year}\n${time}`;
+  };
 
+  // Fix double click by toggling selected date
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
     if (dates && date.getTime() === dates.getTime()) {
@@ -124,6 +139,7 @@ const BothSections = () => {
 
   return (
     <div className="flex inline-flex gap-[1.5rem] overflow-hidden">
+      {/* 📅 Calendar */}
       <div>
         <Calendar
           mode="single"
@@ -136,6 +152,7 @@ const BothSections = () => {
         />
       </div>
 
+      {/* 📝 Mood Entries */}
       <div className="w-[700px] h-auto">
         {filteredMoods.length === 0 ? (
           <div className="text-neutral-500">No moods on this day.</div>
@@ -145,32 +162,36 @@ const BothSections = () => {
               key={mood._id || idx}
               className="w-full h-auto flex flex-col px-[32px] py-[22px] gap-1.5 bg-white border border-[#E5E5E5] rounded-[20px] mb-4"
             >
+              {/* Header */}
               <div className="w-full flex items-center justify-between gap-[12px]">
                 <div className="flex gap-[12px] items-center">
-                  <div className="w-[70px] h-[60px] overflow-hidden">
-                    <MoodComponent key={mood._id} />
+                  <div className="w-[70px] h-[70px] overflow-hidden">
+                    <MoodComponent mood={mood} />
                   </div>
                   <h2 className="text-neutral-800 text-base font-medium leading-tight">
                     {mood.moodTitle || "No description"}
                   </h2>
                 </div>
-                <div className="shrink-0 text-right">
+                {/* Formatted Date */}
+                <div className="shrink-0 text-left">
                   <pre className="whitespace-pre-line text-neutral-400 text-sm font-base leading-tight">
                     {formatMoodDate(mood.createdAt)}
                   </pre>
                 </div>
               </div>
+              {/* Note Content */}
               <div className="w-full">
                 <h2 className="text-neutral-800 text-base font-normal leading-snug">
                   {mood.note || "No note"}
                 </h2>
               </div>
+              {/* Delete Button */}
               <div className="flex justify-end">
                 <button
                   className="cursor-pointer"
                   onClick={() => handleDelete(mood._id)}
                 >
-                  <Trash />
+                  <Trash className="w-[16px] h-[16px]" />
                 </button>
               </div>
             </div>
