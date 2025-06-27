@@ -45,7 +45,7 @@ export default function MoodSlider({
           alt={currentMood.label}
           className="w-20 h-20 object-contain overflow-hidden"
         />
-        <div className="text-gray-700 text-lg font-medium">
+        <div className="w-[487px] h-[23px] font-inter font-medium text-[16px] leading-[130%] text-center text-neutral-800 mb-1">
           {currentMood.label}
         </div>
       </div>
@@ -58,10 +58,17 @@ export default function MoodSlider({
         value={[value]}
         onValueChange={(val) => onChange(val[0])}
       >
-        <Slider.Track className="bg-[linear-gradient(to_right,#f87171,#c084fc,#60a5fa,#ffffff,#86efac,#facc15,#fbbf24)] relative grow rounded-full h-3 shadow-inner">
-          <Slider.Range className="absolute bg-transparent h-full rounded-full" />
+        <Slider.Track className="relative grow rounded-full h-3 overflow-hidden">
+          <img
+            src="/images/slider.svg"
+            className="absolute top-0 left-0 w-full h-full object-cover"
+          />
+          <Slider.Range className="absolute h-full rounded-full bg-white/30" />
         </Slider.Track>
-        <Slider.Thumb className="block w-6 h-6 rounded-full bg-blue-400 shadow-lg transition-transform duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+        <Slider.Thumb className="block w-9 h-9 rounded-full overflow-hidden p-0 focus:outline-none focus:ring-0">
+          <img src="/images/ring.png" className="w-full h-full object-cover" />
+        </Slider.Thumb>
       </Slider.Root>
     </div>
   );
