@@ -13,7 +13,7 @@ type MoodEntryProps = {
 
 export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
   const [mood, setMood] = useState(2);
-  const [moodTitle, setMoodTitle] = useState("Хэвийн"); // Default
+  const [moodTitle, setMoodTitle] = useState<string | undefined>();
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -49,7 +49,7 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
 
       setMessage("Амжилттай хадгалагдлаа!");
       setMood(2);
-      setMoodTitle("Хэвийн");
+      setMoodTitle(undefined);
       setNote("");
 
       if (onSuccess) onSuccess();

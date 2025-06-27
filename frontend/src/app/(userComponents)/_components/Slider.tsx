@@ -10,11 +10,11 @@ type MoodSliderProps = {
 };
 
 const moods = [
-  { image: "angry.png", label: "Хэцүү", min: 0, max: 2 },
-  { image: "sad.png", label: "Тавгүй", min: 2, max: 4 },
-  { image: "neutral.png", label: "Хэвийн", min: 4, max: 6 },
-  { image: "happy.png", label: "Дажгүй шүү", min: 6, max: 8 },
-  { image: "awesome.png", label: "Супер", min: 8, max: 10.01 }, // Cover edge case for 10
+  { image: "angryv2.svg", label: "Хэцүү", min: 0, max: 2 },
+  { image: "sadv2.svg", label: "Тавгүй", min: 2, max: 4 },
+  { image: "neutralv2.svg", label: "Хэвийн", min: 4, max: 6 },
+  { image: "happyv2.svg", label: "Дажгүй шүү", min: 6, max: 8 },
+  { image: "superv2.svg", label: "Супер", min: 8, max: 10.01 }, 
 ];
 
 const getMood = (value: number) => {
@@ -43,7 +43,7 @@ export default function MoodSlider({
         <img
           src={`/images/${currentMood.image}`}
           alt={currentMood.label}
-          className="w-20 h-20 object-contain"
+          className="w-20 h-20 object-contain overflow-hidden"
         />
         <div className="text-gray-700 text-lg font-medium">
           {currentMood.label}

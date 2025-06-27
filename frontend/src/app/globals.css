@@ -135,26 +135,60 @@
 
 /* Color-coded moods */
 .mood-happy::after {
-  background-color: #22c55e; /* green */
+width: 30px;
+height: 10px;
+background: #A0DF9A;
+box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.12), inset 2px 2px 4px rgba(255, 255, 255, 0.32);
+border-radius: 16px;
+flex: none;
+order: 1;
+flex-grow: 0;
+z-index: 1;
 }
-
 .mood-sad::after {
-  background-color: #3b82f6; /* blue */
+width: 30px;
+height: 10px;
+background: #94C7FA;
+box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.12), inset 2px 2px 4px rgba(255, 255, 255, 0.32);
+border-radius: 16px;
+flex: none;
+order: 1;
+flex-grow: 0;
+z-index: 1;
+  
 }
-
 .mood-angry::after {
-  background-color: #ef4444; /* red */
+width: 24px;
+height: 8px;
+background: #F38484;
+box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.12), inset 2px 2px 4px rgba(255, 255, 255, 0.32);
+border-radius: 16px;
+flex: none;
+order: 1;
+flex-grow: 0;
+z-index: 1;
 }
-
-.mood-anxious::after {
-  background-color: #a855f7; /* purple */
-}
-
 .mood-awesome::after {
-  background-color: #f59e0b; /* amber */
+width: 30px;
+height: 10px;
+background: #F7B069;
+box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.12), inset 2px 2px 4px rgba(255, 255, 255, 0.32);
+border-radius: 16px;
+flex: none;
+order: 1;
+flex-grow: 0;
+z-index: 1;
 }
-
 .mood-neutral::after {
-  background-color: #9ca3af; /* gray */
+box-sizing: border-box;
+width: 30px;
+height: 10px;
+background: #F0F3FA;
+border: 1px solid #E5E5E5;
+box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.12), inset 2px 2px 4px rgba(255, 255, 255, 0.32);
+border-radius: 16px;
+flex: none;
+order: 1;
+flex-grow: 0;
+z-index: 1;
 }
-
