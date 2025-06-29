@@ -1,22 +1,24 @@
 "use client";
 
-import { Formik, Form, Field } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import * as jwt from "jsonwebtoken";
-import { toast } from "react-toastify";
 import axios from "axios";
+import Image from "next/image";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
+  const router = useRouter();
   const validationSchema = Yup.object().shape({
     email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
+      .email("Зөв имэйл хаяг оруулна уу")
+      .required("Имэйл шаардлагатай"),
     password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
+      .min(6, "Нууц үг дор хаяж 6 тэмдэгт байх ёстой")
+      .required("Нууц үг шаардлагатай"),
   });
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: any, { resetForm }: any) => {
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`,
@@ -27,87 +29,101 @@ const Login = () => {
       );
 
       const token = response.data.token;
-      if (token) {
-        if (typeof window !== "undefined") {
-          localStorage.setItem("token", token);
-        }
+      if (token && typeof window !== "undefined") {
+        localStorage.setItem("token", token);
       }
 
-      // Wait for AuthContext to update
-      await new Promise(resolve => setTimeout(resolve, 100));
+      toast.success("Амжилттай нэвтэрлээ!");
+      resetForm();
 
-      toast.success("Login successful!");
+      router.push("/note");
     } catch (error: any) {
       console.error(error);
-      toast.error(error?.response?.data?.message || "Login failed");
+      toast.error(error?.response?.data?.message || "Нэвтрэхэд алдаа гарлаа");
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
-      <div className="w-full max-w-md">
-        <Formik
-          initialValues={{
-            email: "",
-            password: "",
-          }}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ errors, touched, isSubmitting }) => (
-            <Form className="space-y-6">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium">
-                  Email address
-                </label>
-                <Field
-                  type="email"
-                  name="email"
-                  className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
-                    errors.email && touched.email
-                      ? "border-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:border-indigo-500"
-                  }`}
-                />
-                {errors.email && touched.email && (
-                  <div className="mt-1 text-sm text-red-600">
-                    {errors.email}
-                  </div>
-                )}
-              </div>
+    <div className="w-screen h-screen flex items-center justify-center bg-white">
+      <div className="w-[765px] h-[573px] rounded-full overflow-hidden relative">
+        <div className="absolute inset-0">
+          <Image src={"/images/Eclipse1.png"} width={765} height={573} alt="" />
+        </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium">
-                  Password
-                </label>
-                <Field
-                  type="password"
-                  name="password"
-                  className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
-                    errors.password && touched.password
-                      ? "border-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:border-indigo-500"
-                  }`}
-                />
-                {errors.password && touched.password && (
-                  <div className="mt-1 text-sm text-red-600">
-                    {errors.password}
-                  </div>
-                )}
+        <div className="relative z-10 w-full h-full flex flex-col items-center justify-center gap-4 px-10">
+          <div className="relative w-[309px] h-[49px]">
+            <div className="bg-white text-black rounded-[10px] px-4 py-2 text-center border w-full h-full">
+              <div className="text-center justify-start text-black text-lg font-normal leading-relaxed">
+                Эргэн уулзахад таатай байна!
               </div>
-
-              <div>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  {isSubmitting ? "Logging in..." : "Sign in"}
-                </button>
-              </div>
-            </Form>
-          )}
-        </Formik>
+            </div>
+            <div className="absolute left-1/2 -translate-x-1/2 top-[calc(100%-2px)] w-0 h-0 border-l-[10px] border-r-[10px] border-t-[12px] border-l-transparent border-r-transparent border-t-white z-10"></div>
+          </div>
+          <Image
+            src="/images/logo.png"
+            alt="Login"
+            width={100}
+            height={100}
+            className="mb-2"
+          />
+          <div className="w-80 text-center justify-start text-neutral-500 text-sm font-normal ">
+            Мэдээллээ оруулж нэвтэрнэ үү.
+          </div>
+          <Formik
+            initialValues={{ email: "", password: "" }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ isSubmitting }) => (
+              <Form className="flex flex-col items-center gap-4 w-full">
+                <div className="w-full max-w-sm">
+                  <Field
+                    type="email"
+                    name="email"
+                    placeholder="Имэйл хаяг"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                  />
+                  <ErrorMessage
+                    name="email"
+                    component="div"
+                    className="text-sm text-red-500 mt-1"
+                  />
+                </div>
+                <div className="w-full max-w-sm">
+                  <Field
+                    type="password"
+                    name="password"
+                    placeholder="Нууц үг"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                  />
+                  <ErrorMessage
+                    name="password"
+                    component="div"
+                    className="text-sm text-red-500 mt-1"
+                  />
+                </div>
+                <div className="group w-[200px] max-w-sm">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full text-white py-2 px-4 rounded-full shadow-md bg-[#94B7FA]  group-hover:from-blue-500 group-hover:to-blue-700 group-hover:bg-gradient-to-r transition-all duration-700"
+                  >
+                    {isSubmitting ? "Түр хүлээнэ үү..." : "Нэвтрэх"}
+                  </button>
+                </div>
+                or
+                <div className="text-sm text-gray-600">
+                  <a
+                    href="/sign-up"
+                    className="text-gray hover:text-blue-500 transition-colors duration-300"
+                  >
+                    Бүртгүүлэх
+                  </a>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
       </div>
     </div>
   );

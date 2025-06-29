@@ -42,6 +42,7 @@ export const CreateUserController = async (req: Request, res: Response) => {
       success: true,
       message: " Sign up successfuly",
       token: token,
+      userId: newUser._id,
     });
   } catch (error) {
     console.error("Registration error:", error);

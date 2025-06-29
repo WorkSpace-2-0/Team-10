@@ -16,10 +16,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkTokenAndRoute = () => {
       if (!token || isExpired) {
-        router.push("/login");
+        if (pathname !== "/login" && pathname !== "/sign-up") {
+          router.push("/login");
+        }
+
       }
 
-      if (pathname === "/login" && decodedToken) {
+      if ((pathname === "/login" || pathname === "/sign-up") && decodedToken) {
         router.push("/");
       }
     };

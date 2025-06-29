@@ -8,16 +8,16 @@ const profileSchema = new mongoose.Schema({
     unique: true,
   },
   goingOut: {
-    type: String,
-    require: true,
+    type: [String], 
+    required: true,
   },
   weekend: {
-    type: String,
-    require: true,
+    type: [String], 
+    required: true,
   },
   hobby: {
-    type: String,
-    require: true,
+    type: [String], 
+    required: true,
   },
 });
 
