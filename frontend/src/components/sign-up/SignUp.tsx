@@ -8,56 +8,41 @@ import axios from "axios";
 import StepNavigation from "./StepNavigation";
 import StepContent from "./StepContent";
 import Progress from "./Progress";
+import { useRouter } from "next/navigation";
+import MoodlyLogo from "../ui/MoodlyLogo";
 
 const SignUp = () => {
   const [loading, setLoading] = React.useState(false);
+  const [submitted, setSubmitted] = React.useState(false);
+  const router = useRouter();
 
   const validationSchema = Yup.object().shape({
-    username: Yup.string().required("Username is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
+    username: Yup.string().required("Нэрээ заавал оруулна уу"),
+    email: Yup.string()
+      .email("Имэйл хаяг буруу байна")
+      .required("Имэйлээ оруулна уу"),
     password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
+      .min(6, "Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой")
+      .required("Нууц үгээ оруулна уу"),
     confirmPassword: Yup.string()
-      .oneOf([Yup.ref("password")], "Passwords must match")
-      .required("Confirm password is required"),
-    goingOut: Yup.string().required("Going out preference is required"),
-    weekend: Yup.string().required("Weekend preference is required"),
-    hobby: Yup.string().required("Hobby preference is required"),
+      .oneOf([Yup.ref("password")], "Нууц үг таарахгүй байна")
+      .required("Нууц үгээ давтан оруулна уу"),
+    goingOut: Yup.array().min(1, "Ядаж 1-г сонгоно уу"),
+    weekend: Yup.array().min(1, "Ядаж 1-г сонгоно уу"),
+    hobby: Yup.array().min(1, "Ядаж 1-г сонгоно уу"),
   });
 
-  const handleSubmit = async (values: any) => {
-    try {
-      setLoading(true);
-
-      const userResponse = await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/auth/register`,
-        {
-          username: values.username,
-          email: values.email,
-          password: values.password,
-        }
-      );
-
-      await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/profile`, {
-        user: userResponse.data.userId,
-        goingOut: values.goingOut,
-        weekend: values.weekend,
-        hobby: values.hobby,
-      });
-
-      setLoading(false);
-      toast.success("Registration successful!");
-    } catch (error: any) {
-      console.error(error);
-      setLoading(false);
-      toast.error(error?.response?.data?.message || "Registration failed");
-    }
-  };
-
   return (
-    <div className="w-full h-auto p-4 cursor-default flex flex-col gap-4 bg-white rounded-lg">
-      <h1 className="font-medium">Sign Up</h1>
+    <div className="w-full h-auto p-4 cursor-default flex flex-col gap-4 bg-white rounded-lg px-20">
+      <div>
+        <button
+          className="flex justify-center items-center gap-1 cursor-pointer"
+          onClick={() => router.push("/")}
+        >
+          <MoodlyLogo />
+          <h1 className="text-[20px]">Moodly</h1>
+        </button>
+      </div>
 
       <Formik
         initialValues={{
@@ -65,24 +50,85 @@ const SignUp = () => {
           email: "",
           password: "",
           confirmPassword: "",
-          goingOut: "",
-          weekend: "",
-          hobby: "",
+          goingOut: [],
+          weekend: [],
+          hobby: [],
           step: 1,
+          emailExists: false,
         }}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+        onSubmit={async (values, { setFieldValue }) => {
+          if (submitted) return; // prevent multiple submits
+          setSubmitted(true);
+
+          try {
+            setLoading(true);
+
+            const userRes = await axios.post(
+              `${process.env.NEXT_PUBLIC_BASE_URL}/auth/createUser`,
+              {
+                userName: values.username,
+                email: values.email,
+                password: values.password,
+              }
+            );
+
+            const userId = userRes.data.userId || userRes.data.user?._id;
+            const token = userRes.data.token;
+
+            if (!userId || !token) {
+              toast.error("User ID эсвэл token олдсонгүй!");
+              return;
+            }
+
+            localStorage.setItem("token", token);
+
+            await axios.post(
+              `${process.env.NEXT_PUBLIC_BASE_URL}/profile/${userId}`,
+              {
+                goingOut: values.goingOut,
+                weekend: values.weekend,
+                hobby: values.hobby,
+              }
+            );
+
+            toast.success("Амжилттай бүртгэгдлээ");
+            setFieldValue("step", 6);
+          } catch (error: any) {
+            console.error("🛑 SignUp error:", error);
+            toast.error(error?.response?.data?.message || "Бүртгэл амжилтгүй");
+            setSubmitted(false);
+          } finally {
+            setLoading(false);
+          }
+        }}
       >
-        {({ values, errors, touched, setFieldValue }) => (
-          <Form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {({ values, errors, touched, setFieldValue, handleSubmit }) => (
+          <Form className="flex flex-col gap-4">
             <Progress values={values} />
-            <StepContent values={values} errors={errors} touched={touched} />
-            <StepNavigation
-              values={values}
-              setStep={(newStep: number) => setFieldValue("step", newStep)}
-              handleSubmit={handleSubmit}
-              loading={loading}
-            />
+
+            {loading ? (
+              <div className="flex justify-center items-center h-40">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent"></div>
+              </div>
+            ) : (
+              <>
+                <StepContent
+                  values={values}
+                  errors={errors}
+                  touched={touched}
+                  setFieldValue={setFieldValue}
+                />
+                {values.step < 6 && (
+                  <StepNavigation
+                    values={values}
+                    setStep={(step: any) => setFieldValue("step", step)}
+                    handleSubmit={handleSubmit}
+                    loading={loading}
+                  />
+                )}
+              </>
+            )}
           </Form>
         )}
       </Formik>
