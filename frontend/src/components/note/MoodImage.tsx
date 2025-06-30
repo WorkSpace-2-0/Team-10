@@ -4,7 +4,7 @@ const MOOD_IMAGES: Record<string, string> = {
   Хэцүү: "/images/angryv2.svg",
   "Дажгүй шүү": "/images/happyv2.svg",
   Тавгүй: "/images/sadv2.svg",
-  Хэвийн: "/images/neutralv2.svg",
+  Хэвийн: "/images/neutral.svg",
   Супер: "/images/superv2.svg",
 };
 
