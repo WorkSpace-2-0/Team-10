@@ -12,7 +12,7 @@ type MoodSliderProps = {
 const moods = [
   { image: "angryv2.svg", label: "Хэцүү", min: 0, max: 2 },
   { image: "sadv2.svg", label: "Тавгүй", min: 2, max: 4 },
-  { image: "neutralv2.svg", label: "Хэвийн", min: 4, max: 6 },
+  { image: "neutral.svg", label: "Хэвийн", min: 4, max: 6 },
   { image: "happyv2.svg", label: "Дажгүй шүү", min: 6, max: 8 },
   { image: "superv2.svg", label: "Супер", min: 8, max: 10.01 }, 
 ];

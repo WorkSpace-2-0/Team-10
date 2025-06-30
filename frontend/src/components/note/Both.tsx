@@ -5,9 +5,9 @@ import { Calendar } from "../ui/calendar";
 import { Trash } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import MoodComponent from "./MoodImage";
-import { format } from "date-fns";
 import { mn } from "date-fns/locale";
 import { formatWithOptions } from "date-fns/fp";
+import { format } from "date-fns";
 
 const moodColorMap: Record<string, string> = {
   "Дажгүй шүү": "mood-happy",
@@ -74,23 +74,16 @@ const BothSections = () => {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate();
 
-  // Build moodDateMap for colored calendar underlines
-  const moodDateMap = React.useMemo(() => {
-    const map: { date: Date; moodTitle: string }[] = [];
-    const seen = new Set<string>();
+  // Build a map: date string (yyyy-MM-dd) -> mood object (latest for that day)
+  const moodMap = React.useMemo(() => {
+    const map = new Map<string, any>();
     moods.forEach((mood) => {
-      const dateObj =
-        mood.createdAt instanceof Date
-          ? mood.createdAt
-          : new Date(mood.createdAt);
+      const dateObj = mood.createdAt instanceof Date ? mood.createdAt : new Date(mood.createdAt);
       if (!isNaN(dateObj.getTime())) {
-        const key = dateObj.toISOString().slice(0, 10) + mood.moodTitle;
-        if (!seen.has(key)) {
-          seen.add(key);
-          map.push({
-            date: new Date(dateObj.toISOString().slice(0, 10)),
-            moodTitle: mood.moodTitle,
-          });
+        const key = format(dateObj, "yyyy-MM-dd");
+        // If multiple moods per day, keep the latest (or change logic as needed)
+        if (!map.has(key) || dateObj > map.get(key).createdAt) {
+          map.set(key, { ...mood, createdAt: dateObj });
         }
       }
     });
@@ -100,12 +93,23 @@ const BothSections = () => {
   // Build modifiers and modifiersClassNames for calendar
   const modifiers: Record<string, Date[]> = {};
   const modifiersClassNames: Record<string, string> = {};
-  moodDateMap.forEach(({ date, moodTitle }) => {
-    const className = moodColorMap[moodTitle] || "mood-neutral";
+
+  // Color underline for each mood day
+  moodMap.forEach((mood, dateStr) => {
+    const className = moodColorMap[mood.moodTitle] || "mood-neutral";
     if (!modifiers[className]) modifiers[className] = [];
-    modifiers[className].push(date);
+    modifiers[className].push(new Date(dateStr));
     modifiersClassNames[className] = className;
   });
+
+  // Pencil modifier for any day with a mood note
+  const pencilDates = Array.from(moodMap.values())
+    .filter((mood) => mood.note && mood.note.trim() !== "")
+    .map((mood) => new Date(format(mood.createdAt, "yyyy-MM-dd")));
+  if (pencilDates.length > 0) {
+    modifiers["pencil"] = pencilDates;
+    modifiersClassNames["pencil"] = "pencil";
+  }
 
   const filteredMoods = React.useMemo(() => {
     if (!dates) return moods;
@@ -118,13 +122,7 @@ const BothSections = () => {
   }, [dates, moods]);
 
   const formatMoodDate = (date: Date) => {
-    const formatMN = formatWithOptions({ locale: mn });
-    const weekday = formatMN("EEEE", date); // Даваа гараг
-    const month = formatMN("M", date); // 6
-    const day = formatMN("d", date); // 16
-    const year = formatMN("yyyy", date); // 2025
-    const time = formatMN("HH:mm", date); // 12:48
-    return `${weekday}\n${month} сарын ${day}, ${year}\n${time}`;
+    return format(date, "yyyy.MM.dd");
   };
 
   // Fix double click by toggling selected date
@@ -155,7 +153,37 @@ const BothSections = () => {
       {/* 📝 Mood Entries */}
       <div className="w-[700px] h-auto">
         {filteredMoods.length === 0 ? (
-          <div className="text-neutral-500">No moods on this day.</div>
+          <div className="w-full h-auto flex flex-col px-[32px] py-[22px] gap-1.5 bg-white border border-[#E5E5E5] rounded-[20px] mb-4">
+            {/* Header */}
+            <div className="w-full flex items-center justify-between gap-[12px]">
+              <div className="flex gap-[12px] items-center">
+                <div className="w-[70px] h-[70px] overflow-hidden">
+                  <img src="/images/none.svg" alt="none" />
+                </div>
+                <h2 className="text-neutral-400 text-base font-medium leading-tight">
+                  Мэдээлэл алга
+                </h2>
+              </div>
+              {/* Show selected date here */}
+              <div className="shrink-0 text-left">
+                <pre className="whitespace-pre-line text-neutral-400 text-sm font-base leading-tight">
+                  {dates ? formatMoodDate(dates) : ""}
+                </pre>
+              </div>
+            </div>
+            {/* Note Content */}
+            <div className="w-full">
+              <h2 className="text-neutral-400 text-base font-normal leading-snug">
+                Та энэ өдөр тэмдэглэл хөтлөөгүй байна.
+              </h2>
+            </div>
+            {/* Delete Button */}
+            <div className="flex justify-end">
+              <button className="cursor-pointer">
+                <Trash className="w-[16px] h-[16px] border-neutral-400" />
+              </button>
+            </div>
+          </div>
         ) : (
           filteredMoods.map((mood, idx) => (
             <div
