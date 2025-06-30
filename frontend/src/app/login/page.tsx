@@ -120,6 +120,7 @@ const Login = () => {
                     Бүртгүүлэх
                   </a>
                 </div>
+                {""}
               </Form>
             )}
           </Formik>
