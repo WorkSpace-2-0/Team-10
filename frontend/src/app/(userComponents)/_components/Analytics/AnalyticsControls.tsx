@@ -1,50 +1,67 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type AnalyticsControlsProps = {
-  onRangeChange: (range: number) => void;
-  onUnitChange: (unit: "day" | "week" | "month") => void;
-  range: number;
-  unit: "day" | "week" | "month";
+  onRangeOffsetChange: (offsetDelta: number) => void;
+  onUnitChange: (unit: "week" | "month") => void;
+  rangeLabel: string;
+  unit: "week" | "month";
+  canGoNext: boolean; // to disable "next" button if at current range
 };
 
 const AnalyticsControls: React.FC<AnalyticsControlsProps> = ({
-  onRangeChange,
+  onRangeOffsetChange,
   onUnitChange,
-  range,
+  rangeLabel,
   unit,
+  canGoNext,
 }) => {
-  const rangeOptions = [7, 30, 60, 90, 120];
-
   return (
-    <div className="flex gap-4 mb-6">
-      <div className="flex items-center space-x-2">
-        <select
-          value={range}
-          onChange={(e) => onRangeChange(parseInt(e.target.value))}
-          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <div className="flex items-center justify-between w-full mb-6">
+      {/* Date navigation */}
+      <div className="flex items-center gap-2 text-sm font-medium">
+        <button
+          onClick={() => onRangeOffsetChange(1)}
+          aria-label="Previous range"
+          className="hover:text-gray-800 cursor-pointer"
         >
-          {rangeOptions.map((d) => (
-            <option key={d} value={d}>
-              Сүүлийн {d} өдрөөр
-            </option>
-          ))}
-        </select>
+          <ChevronLeft size={18} />
+        </button>
+        <span className="underline select-none text-[18px] font-medium">
+          {rangeLabel}
+        </span>
+        <button
+          onClick={() => onRangeOffsetChange(-1)}
+          disabled={!canGoNext}
+          aria-label="Next range"
+          className={`hover:text-gray-800 ${
+            !canGoNext ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
+          }`}
+        >
+          <ChevronRight size={18} />
+        </button>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <select
-          value={unit}
-          onChange={(e) =>
-            onUnitChange(e.target.value as "day" | "week" | "month")
-          }
-          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      {/* Unit toggle */}
+      <div className="flex bg-gray-100 rounded-full p-1 text-sm font-medium select-none">
+        <button
+          onClick={() => onUnitChange("week")}
+          className={`px-4 py-1 rounded-full cursor-pointer ${
+            unit === "week" ? "bg-white shadow" : "text-gray-500"
+          }`}
         >
-          <option value="day">Өдрөөр</option>
-          <option value="week">7 хоногоор</option>
-          <option value="month">Сараар</option>
-        </select>
+          7 хоногоор
+        </button>
+        <button
+          onClick={() => onUnitChange("month")}
+          className={`px-4 py-1 rounded-full cursor-pointer ${
+            unit === "month" ? "bg-white shadow" : "text-gray-500"
+          }`}
+        >
+          Сараар
+        </button>
       </div>
     </div>
   );

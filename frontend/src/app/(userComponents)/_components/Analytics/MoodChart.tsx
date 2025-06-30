@@ -1,107 +1,210 @@
 "use client";
 
 import React from "react";
-import { Line } from "react-chartjs-2";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
   Tooltip,
-  Legend,
-  TimeScale,
-} from "chart.js";
-import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm";
+} from "recharts";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  TimeScale
-);
-const unitTranslations = {
-  day: "Өдрөөр",
-  week: "7 хоногоор",
-  month: "Сараар",
+const mongolianDaysMap: Record<string, string> = {
+  Monday: "Даваа",
+  Tuesday: "Мягмар",
+  Wednesday: "Лхагва",
+  Thursday: "Пүрэв",
+  Friday: "Баасан",
+  Saturday: "Бямба",
+  Sunday: "Ням",
+};
+
+type MoodEntry = {
+  label: string;
+  averageMood: number;
+  count: number;
 };
 
 type MoodChartProps = {
-  data: any[];
-  unit: "day" | "week" | "month";
+  data: {
+    current: MoodEntry[];
+    previous: MoodEntry[];
+  };
+  unit: "week" | "month";
   rangeDays: number;
+  rangeLabel: string;
+  changePercentage?: number; // Get this from backend instead of calculating
 };
 
-const MoodChart: React.FC<MoodChartProps> = ({ data, unit, rangeDays }) => {
-  const mongolianUnit = unitTranslations[unit] || unit;
+const MoodChart: React.FC<MoodChartProps> = ({
+  data,
+  unit,
+  rangeDays,
+  rangeLabel,
+  changePercentage = 0,
+}) => {
+  if (!data || !data.current || data.current.length === 0) {
+    return (
+      <Card className="w-full bg-white rounded-xl shadow-md p-4">
+        <CardContent className="py-8">
+          <div className="text-center">
+            <p className="text-gray-500 mb-2">Өгөгдөл олдсонгүй</p>
+            <p className="text-sm text-gray-400">
+              {unit === "week" ? "Энэ долоо хоногт" : "Энэ сард"} сэтгэл санааны
+              өгөгдөл бүртгэгдээгүй байна
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  const chartData = {
-    labels: data?.map((d) => d.label) || [],
-    datasets: [
-      {
-        label: "Average Mood",
-        data: data?.map((d) => d.averageMood) || [],
-        fill: false,
-        borderColor: "rgb(75, 192, 192)",
-        tension: 0.3,
-        pointRadius: 4,
-      },
-    ],
+  const chartData = data.current.map((d) => {
+    let displayLabel = d.label;
+    let tooltipLabel = d.label;
+
+    if (unit === "week") {
+      displayLabel = mongolianDaysMap[d.label] || d.label;
+      tooltipLabel = displayLabel;
+    } else if (unit === "month") {
+      displayLabel = `${d.label} өдөр`;
+      tooltipLabel = `${d.label} өдрүүд`;
+    }
+
+    return {
+      ...d,
+      displayLabel,
+      tooltipLabel,
+    };
+  });
+
+  // Calculate average mood for the period
+  const validMoods = chartData.filter((item) => item.averageMood > 0);
+  const totalMoodSum = validMoods.reduce(
+    (sum, item) => sum + item.averageMood,
+    0
+  );
+  const avgMood = validMoods.length
+    ? +(totalMoodSum / validMoods.length).toFixed(1)
+    : 0;
+
+  // Calculate total entries
+  const totalEntries = chartData.reduce((sum, item) => sum + item.count, 0);
+
+  // Use backend-provided change percentage
+  const getTrendDisplay = () => {
+    if (Math.abs(changePercentage) < 0.1) return null;
+
+    return {
+      direction: changePercentage > 0 ? "up" : "down",
+      percent: Math.abs(changePercentage).toFixed(1),
+      color: changePercentage > 0 ? "text-green-600" : "text-red-600",
+      icon: changePercentage > 0 ? "↗" : "↘",
+    };
   };
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: true },
-      title: {
-        display: true,
-        text: `${mongolianUnit}, сүүлийн ${rangeDays} хоногийн грфик`,
-      },
-      tooltip: {
-        callbacks: {
-          label: (context: any) => `Mood: ${context.parsed.y}`,
-        },
-      },
-    },
-    scales: {
-      x: {
-        type: "time" as const,
-        time: {
-          unit: unit as "day" | "week" | "month",
-          tooltipFormat: unit === "week" ? "YYYY-[W]WW" : "YYYY-MM-DD",
-          displayFormats: {
-            day: "MMM D",
-            week: "YYYY-[W]WW",
-            month: "MMM YYYY",
-          },
-        },
-        distribution: "series" as const,
-        ticks: {
-          autoSkip: true,
-          maxTicksLimit: 15,
-        },
-      },
-      y: {
-        min: 0,
-        max: 10,
-      },
-    },
-  };
+  const trend = getTrendDisplay();
 
   return (
-    <div className="w-full h-[400px] bg-white rounded-lg shadow-md p-4">
-      <Line
-        data={chartData}
-        options={options}
-        style={{ width: "100%", height: "100%" }}
-      />
-    </div>
+    <Card className="w-full bg-white rounded-xl shadow-md">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline">
+                <p className="text-[32px] font-semibold">{avgMood}</p>
+                <p className="text-[20px] font-semibold text-neutral-400">
+                  /10
+                </p>
+              </div>
+              {trend && (
+                <span className={`text-sm font-medium ${trend.color}`}>
+                  {trend.icon} {trend.percent}%
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-gray-500 mt-1">{totalEntries} бүртгэл</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-gray-400 uppercase tracking-wide">
+              {unit === "week" ? "7 ХОНОГИЙН" : "САРЫН"} ДУНДАЖ
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="h-[320px] pt-2">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={chartData}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis
+              dataKey="displayLabel"
+              tickLine={false}
+              axisLine={{ stroke: "#cbd5e0" }}
+              tick={{ fontSize: 12, fill: "#4a5568" }}
+              interval={0}
+              angle={unit === "month" ? -45 : 0}
+              textAnchor={unit === "month" ? "end" : "middle"}
+              height={unit === "month" ? 80 : 60}
+            />
+            <YAxis
+              domain={[0, 10]}
+              tickLine={false}
+              axisLine={{ stroke: "#cbd5e0" }}
+              tick={{ fontSize: 12, fill: "#4a5568" }}
+              tickCount={6}
+            />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload || !payload.length) return null;
+
+                const data = payload[0].payload;
+                return (
+                  <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
+                    <p className="font-medium text-gray-900">
+                      {data.tooltipLabel}
+                    </p>
+                    <p className="text-blue-600 font-bold">
+                      {data.averageMood} оноо
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {data.count} бүртгэл
+                    </p>
+                  </div>
+                );
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="averageMood"
+              stroke="#3b82f6"
+              strokeWidth={3}
+              dot={{
+                r: 5,
+                stroke: "#3b82f6",
+                strokeWidth: 2,
+                fill: "#fff",
+              }}
+              activeDot={{
+                r: 7,
+                stroke: "#3b82f6",
+                strokeWidth: 3,
+                fill: "#3b82f6",
+              }}
+              connectNulls={false}
+              isAnimationActive={true}
+              animationDuration={800}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
   );
 };
 

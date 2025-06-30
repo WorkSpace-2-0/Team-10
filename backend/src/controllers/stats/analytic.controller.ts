@@ -9,44 +9,61 @@ dayjs.extend(isoWeek);
 
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
-type Unit = "day" | "week" | "month";
-const VALID_UNITS: Unit[] = ["day", "week", "month"];
-const DEFAULT_RANGE_DAYS = 30;
+type Unit = "week" | "month";
+const VALID_UNITS: Unit[] = ["week", "month"];
 
-function formatByUnit(date: Date, unit: Unit): string {
+function formatByUnit(date: Date, unit: Unit, rangeStart: dayjs.Dayjs): string {
   const d = dayjs(date);
   switch (unit) {
-    case "day":
-      return d.format("YYYY-MM-DD");
     case "week":
-      return d.startOf("isoWeek").format("YYYY-MM-DD");
+      return d.format("dddd"); // Return day name for week view
     case "month":
-      return d.format("YYYY-MM");
+      // For month view, group by week ranges within the month
+      const dayOfMonth = d.date();
+      const weekInMonth = Math.ceil(dayOfMonth / 7);
+      const startDay = (weekInMonth - 1) * 7 + 1;
+      const endDay = Math.min(weekInMonth * 7, d.daysInMonth());
+      return `${startDay}-${endDay}`;
     default:
       return d.format();
   }
 }
 
-function suggestUnit(rangeDays: number): Unit {
-  if (rangeDays <= 30) return "day";
-  if (rangeDays <= 90) return "week";
-  return "month";
-}
+const DEFAULT_RANGE_DAYS = 7;
 
 export const getMoodChart = async (req: Request, res: Response) => {
   try {
-    const rangeDays = parseInt(req.query.range as string) || DEFAULT_RANGE_DAYS;
-    let unit = (req.query.unit as Unit) || suggestUnit(rangeDays);
+    const range = parseInt(req.query.range as string) || 14; // Default 14 days for 2 weeks
+    let unit = (req.query.unit as Unit) || "week";
+
     if (!VALID_UNITS.includes(unit)) {
       res.status(400).json({ success: false, message: "Invalid unit" });
     }
 
     const userId = req.query.userId as string | undefined;
+    const rangeOffset = parseInt(req.query.rangeOffset as string) || 0;
 
     const now = dayjs();
-    const start = now.subtract(rangeDays, "day").startOf("day");
+    let start: dayjs.Dayjs;
+    let end: dayjs.Dayjs;
 
-    const filter: any = { createdAt: { $gte: start.toDate() } };
+    if (unit === "week") {
+      // For week view, get the specific week
+      end = now.startOf("isoWeek").subtract(rangeOffset * 7, "day");
+      start = end.subtract(6, "day");
+    } else {
+      // For month view, get the specific month
+      const targetMonth = now.subtract(rangeOffset, "month");
+      start = targetMonth.startOf("month");
+      end = targetMonth.endOf("month");
+    }
+
+    const filter: any = {
+      createdAt: {
+        $gte: start.toDate(),
+        $lte: end.toDate(),
+      },
+    };
     if (userId) filter.userId = userId;
 
     const entries = await MoodEntry.find(filter).lean();
@@ -57,32 +74,62 @@ export const getMoodChart = async (req: Request, res: Response) => {
     });
 
     const moodMap: Record<string, number[]> = {};
+
     for (const entry of filteredEntries) {
       if (typeof entry.moodScore !== "number") continue;
-      const key = formatByUnit(entry.createdAt, unit);
+      const key = formatByUnit(entry.createdAt, unit, start);
       if (!moodMap[key]) moodMap[key] = [];
       moodMap[key].push(entry.moodScore);
     }
 
-    const data = Object.entries(moodMap)
-      .sort(([a], [b]) => (a > b ? 1 : -1))
-      .map(([label, moods]) => ({
-        label,
-        averageMood: +(moods.reduce((a, b) => a + b, 0) / moods.length).toFixed(
-          2
-        ),
-        count: moods.length,
-      }));
+    let data;
 
-    res
-      .status(200)
-      .json({ success: true, data, unit, rangeDays, userId: userId || null });
+    if (unit === "week") {
+      // For week view, ensure all weekdays are present
+      const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+      data = weekdays.map((day) => ({
+        label: day,
+        averageMood: moodMap[day]
+          ? +(
+              moodMap[day].reduce((a, b) => a + b, 0) / moodMap[day].length
+            ).toFixed(2)
+          : 0,
+        count: moodMap[day] ? moodMap[day].length : 0,
+      }));
+    } else {
+      // For month view, sort by week ranges
+      data = Object.entries(moodMap)
+        .sort(([a], [b]) => {
+          const aStart = parseInt(a.split("-")[0]);
+          const bStart = parseInt(b.split("-")[0]);
+          return aStart - bStart;
+        })
+        .map(([label, moods]) => ({
+          label,
+          averageMood: +(
+            moods.reduce((a, b) => a + b, 0) / moods.length
+          ).toFixed(2),
+          count: moods.length,
+        }));
+    }
+
+    res.status(200).json({
+      success: true,
+      data,
+      unit,
+      range,
+      rangeOffset,
+      period: {
+        start: start.format("YYYY-MM-DD"),
+        end: end.format("YYYY-MM-DD"),
+      },
+      userId: userId || null,
+    });
   } catch (err) {
     console.error("getMoodChart error:", err);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
-
 export const getMoodSummary = async (req: Request, res: Response) => {
   try {
     const rangeDays = parseInt(req.query.range as string) || DEFAULT_RANGE_DAYS;
