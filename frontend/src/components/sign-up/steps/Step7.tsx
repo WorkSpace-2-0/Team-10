@@ -7,7 +7,7 @@ const SuccessScreen = () => {
   const router = useRouter();
 
   const handleContinue = () => {
-    router.push("/dashboard"); // Dashboard руу шилжинэ
+    router.push("/"); 
   };
 
   return (

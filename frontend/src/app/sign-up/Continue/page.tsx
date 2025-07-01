@@ -8,7 +8,7 @@ const SuccessScreen = () => {
   const router = useRouter();
 
   const handleContinue = () => {
-    router.push("/note");
+    router.push("/");
   };
 
   return (
