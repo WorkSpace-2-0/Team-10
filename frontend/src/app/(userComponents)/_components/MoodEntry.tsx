@@ -61,8 +61,8 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white flex items-center justify-center text-center px-4 py-10">
-      <div className="w-[590px] flex flex-col justify-center items-center">
+    <div className="w-full bg-white flex items-center justify-center text-center m-0 p-0">
+      <div className="w-full flex flex-col justify-center items-center bg-white border-b rounded-bl-[100px] rounded-br-[100px] m-0 p-0 pb-10 pt-8">
         <h2 className="w-[487px] h-[23px] font-inter font-medium text-[18px] leading-[130%] text-center text-neutral-800 mb-1">
           Сайн уу, {name}
         </h2>
@@ -71,11 +71,13 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
           Та өнөөдөр ямар сэтгэгдэлтэй байна вэ?
         </h1>
 
-        <MoodSlider
-          value={mood}
-          onChange={setMood}
-          onMoodTitleChange={setMoodTitle}
-        />
+        <div className="w-full max-w-[590px] mx-auto">
+          <MoodSlider
+            value={mood}
+            onChange={setMood}
+            onMoodTitleChange={setMoodTitle}
+          />
+        </div>
 
         <div className="mt-6 mb-8 text-center">
           <img
