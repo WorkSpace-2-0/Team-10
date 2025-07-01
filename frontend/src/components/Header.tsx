@@ -19,13 +19,13 @@ const Header = ({ toggleMode, isIndividual }: PropsType) => {
           onClick={() => router.push("/")}
         >
           <MoodlyLogo />
-          <h1 className="text-[20px]">Moodly</h1>
+          <h1 className="text-black text-center font-inter text-[20px] font-medium leading-[120%] tracking-normal">Moodly</h1>
         </button>
         <div className="flex justify-center items-center gap-4">
           <div className="flex justify-center items-center gap-2">
-            <p className="text-[12px] text-neutral-800">Хувь хүн</p>
+            <p className="text-neutral-900 text-center font-inter text-sm font-medium text-[14px] leading-[142.857%] tracking-normal">Хувь хүн</p>
             <RoleSwitcher isIndividual={isIndividual} toggleMode={toggleMode} />
-            <p className="text-[12px] text-neutral-800">Админ</p>
+            <p className="text-neutral-900 text-center font-inter text-sm font-medium text-[14px] leading-[142.857%] tracking-normal">Админ</p>
           </div>
           <div className="flex justify-center items-center gap-2">
             {isIndividual ? (
@@ -38,14 +38,14 @@ const Header = ({ toggleMode, isIndividual }: PropsType) => {
             ) : (
               <button
                 onClick={() => router.push("/note")}
-                className="text-[14px] text-neutral-900 p-3 cursor-pointer"
+                className="text-neutral-900 text-center font-inter text-sm font-medium leading-[142.857%] tracking-normal text-[14px] text-neutral-900 p-3 cursor-pointer"
               >
                 Тэмдэглэл
               </button>
             )}
             <button
               onClick={() => router.push("/profile")}
-              className="cursor-pointer"
+              className="cursor-pointer "
             >
               <ProfileSVG />
             </button>
