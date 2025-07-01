@@ -14,7 +14,7 @@ const moods = [
   { image: "sadv2.svg", label: "Тавгүй", min: 2, max: 4 },
   { image: "neutral.svg", label: "Хэвийн", min: 4, max: 6 },
   { image: "happyv2.svg", label: "Дажгүй шүү", min: 6, max: 8 },
-  { image: "superv2.svg", label: "Супер", min: 8, max: 10.01 }, 
+  { image: "superv2.svg", label: "Супер", min: 8, max: 10.01 },
 ];
 
 const getMood = (value: number) => {
@@ -39,26 +39,26 @@ export default function MoodSlider({
 
   return (
     <div className="w-full flex flex-col items-center gap-6">
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center mb-[12px]">
         <img
           src={`/images/${currentMood.image}`}
           alt={currentMood.label}
-          className="w-20 h-20 object-contain overflow-hidden"
+          className="w-20 h-20 object-contain overflow-hidden mb-[10px]"
         />
-        <div className="w-[487px] h-[23px] font-inter font-medium text-[16px] leading-[130%] text-center text-neutral-800 mb-1">
+        <div className="w-[487px] h-[23px] font-inter font-medium text-[16px] leading-[130%] text-center text-neutral-800">
           {currentMood.label}
         </div>
       </div>
 
       <Slider.Root
-        className="relative flex items-center select-none touch-none w-full h-7"
+        className="relative flex items-center select-none touch-none w-full h-7 mb-[24px]"
         min={0}
         max={10}
         step={0.01}
         value={[value]}
         onValueChange={(val) => onChange(val[0])}
       >
-        <Slider.Track className="relative grow rounded-full h-3 overflow-hidden">
+        <Slider.Track className="relative grow rounded-full h-3 overflow-hidden ">
           <img
             src="/images/slider.svg"
             className="absolute top-0 left-0 w-full h-full object-cover"
