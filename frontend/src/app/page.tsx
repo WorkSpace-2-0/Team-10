@@ -2,9 +2,9 @@
 
 import Header from "../components/Header";
 import AdminComponent from "./(adminComponents)/_feature/AdminComponent";
-import IndividualComponent from "./(userComponents)/_feature/IndividualComponent";
 import { useUser } from "../contexts/UserContext";
 import { useState, useEffect } from "react";
+import IndividualComponent from "./(userComponents)/_feature/IndividualComponent";
 
 export default function Home() {
   const { role } = useUser();
@@ -14,16 +14,14 @@ export default function Home() {
     setIsIndividual(role !== "ADMIN");
   }, [role]);
 
-  if (role !== "ADMIN") {
-    return null;
-  }
   const toggleMode = () => {
     setIsIndividual(!isIndividual);
   };
+
   return (
     <div className="w-screen h-screen">
       <Header isIndividual={isIndividual} toggleMode={toggleMode} />
-      <div>{isIndividual ? <AdminComponent /> : <IndividualComponent />}</div>
+      <div>{isIndividual ? <IndividualComponent /> : <AdminComponent />}</div>
     </div>
   );
 }
