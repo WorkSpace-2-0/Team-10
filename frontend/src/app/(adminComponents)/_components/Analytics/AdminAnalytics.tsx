@@ -3,82 +3,184 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
+import isoWeek from "dayjs/plugin/isoWeek";
 import MoodChart from "../../../(userComponents)/_components/Analytics/MoodChart";
 import AnalyticsControls from "../../../(userComponents)/_components/Analytics/AnalyticsControls";
 import AdminAnalyticsSummary from "./AdminAnalyticsSummary";
-import { useUser } from "../../../../contexts/UserContext";
 
-const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+dayjs.extend(isoWeek);
+
+type MoodEntry = {
+  label: string;
+  averageMood: number;
+  count: number;
+};
 
 const AdminAnalytics = () => {
-  const [rangeDays, setRangeDays] = useState<number>(30);
-  const [unit, setUnit] = useState<"day" | "week" | "month">("day");
-  const [chartData, setChartData] = useState<any>(null);
+  const [unit, setUnit] = useState<"week" | "month">("week");
+  const [rangeOffset, setRangeOffset] = useState<number>(0);
+  const [chartData, setChartData] = useState<{
+    current: MoodEntry[];
+    previous: MoodEntry[];
+  }>({ current: [], previous: [] });
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  console.log(summary);
+  const getRange = () => {
+    if (unit === "week") {
+      const end = dayjs()
+        .startOf("isoWeek")
+        .subtract(rangeOffset * 7, "day");
+      const start = end.subtract(6, "day");
+      return { start, end };
+    }
+    if (unit === "month") {
+      const targetMonth = dayjs().subtract(rangeOffset, "month");
+      const start = targetMonth.startOf("month");
+      const end = targetMonth.endOf("month");
+      return { start, end };
+    }
+    return { start: dayjs(), end: dayjs() };
+  };
+
+  const getRangeDays = () => {
+    const { start, end } = getRange();
+    return end.diff(start, "day") + 1;
+  };
+
+  const rangeLabel = () => {
+    const { start, end } = getRange();
+    if (unit === "week") {
+      return `${start.format("M сарын D")} - ${end.format("M сарын D")}`;
+    }
+    if (unit === "month") {
+      return `${start.format("YYYY оны M сар")}`;
+    }
+    return "";
+  };
+
+  const canGoNext = rangeOffset > 0;
+
   useEffect(() => {
     const fetchData = async () => {
+      if (loading) return; // Prevent multiple concurrent requests
+
       setLoading(true);
       setError(null);
+
       try {
-        const chartRes = await axios.get(
+        const rangeDays = getRangeDays();
+
+        // Fetch current period data (no userId = overall stats)
+        const currentRes = await axios.get(
           `${process.env.NEXT_PUBLIC_BASE_URL}/stats/chart`,
           {
-            params: { range: rangeDays, unit },
+            params: {
+              range: rangeDays,
+              unit,
+              rangeOffset,
+              // No userId parameter for admin - gets overall stats
+            },
           }
         );
 
-        const filteredData = chartRes.data.data.filter((item: any) => {
-          if (unit === "day") {
-            const dayName = dayjs(item.label).format("dddd");
-            return WEEKDAYS.includes(dayName);
+        // Fetch previous period data for comparison
+        const previousRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/stats/chart`,
+          {
+            params: {
+              range: rangeDays,
+              unit,
+              rangeOffset: rangeOffset + 1,
+              // No userId parameter for admin - gets overall stats
+            },
           }
-          return true;
+        );
+
+        setChartData({
+          current: currentRes.data.data || [],
+          previous: previousRes.data.data || [],
         });
 
-        setChartData(filteredData);
-
+        // Fetch summary data (no userId = overall summary)
         const summaryRes = await axios.get(
           `${process.env.NEXT_PUBLIC_BASE_URL}/stats/summary`,
           {
-            params: { range: rangeDays },
+            params: {
+              range: rangeDays,
+              rangeOffset,
+              // No userId parameter for admin - gets overall summary
+            },
           }
         );
         setSummary(summaryRes.data);
       } catch (err: any) {
-        const errorMessage =
+        console.error("Admin analytics fetch error:", err);
+        setError(
           err.response?.data?.message ||
-          err.message ||
-          "Failed to load analytics";
-        setError(errorMessage);
-        console.error("Analytics error:", err);
+            err.message ||
+            "Failed to fetch analytics"
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [rangeDays, unit]);
+  }, [rangeOffset, unit]);
+
+  const handleUnitChange = (newUnit: "week" | "month") => {
+    setUnit(newUnit);
+    setRangeOffset(0); // Reset to current period when changing units
+  };
+
+  const handleRangeOffsetChange = (delta: number) => {
+    setRangeOffset((prev) => {
+      const next = prev + delta;
+      return next < 0 ? 0 : next; // Don't allow future dates
+    });
+  };
 
   return (
     <div className="max-w-7xl w-full flex flex-col mx-auto p-6 gap-6">
       {loading && (
-        <div className="text-center text-gray-600">Loading analytics...</div>
+        <div className="text-center text-gray-600 py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-2">Уншиж байна...</p>
+        </div>
       )}
 
-      {!loading && !error && chartData && (
+      {!loading && error && (
+        <div className="text-center text-red-500 py-8">
+          <p>{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-2 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200"
+          >
+            Дахин оролдох
+          </button>
+        </div>
+      )}
+
+      {!loading && !error && (
         <>
-          <AdminAnalyticsSummary summary={summary} range={rangeDays} />
+          <AdminAnalyticsSummary summary={summary} range={getRangeDays()} />
+
           <AnalyticsControls
-            range={rangeDays}
+            rangeLabel={rangeLabel()}
             unit={unit}
-            onRangeChange={setRangeDays}
-            onUnitChange={setUnit}
+            onUnitChange={handleUnitChange}
+            onRangeOffsetChange={handleRangeOffsetChange}
+            canGoNext={canGoNext}
           />
-          <MoodChart data={chartData} unit={unit} rangeDays={rangeDays} />
+
+          <MoodChart
+            data={chartData}
+            unit={unit}
+            rangeDays={getRangeDays()}
+            rangeLabel={rangeLabel()}
+          />
         </>
       )}
     </div>
