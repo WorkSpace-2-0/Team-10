@@ -5,9 +5,12 @@ import { Calendar } from "../ui/calendar";
 import { Trash } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import MoodComponent from "./MoodImage";
+import None from "./None";
 import { mn } from "date-fns/locale";
 import { formatWithOptions } from "date-fns/fp";
 import { format } from "date-fns";
+
+const formatMN = formatWithOptions({ locale: mn });
 
 const moodColorMap: Record<string, string> = {
   "Дажгүй шүү": "mood-happy",
@@ -78,7 +81,10 @@ const BothSections = () => {
   const moodMap = React.useMemo(() => {
     const map = new Map<string, any>();
     moods.forEach((mood) => {
-      const dateObj = mood.createdAt instanceof Date ? mood.createdAt : new Date(mood.createdAt);
+      const dateObj =
+        mood.createdAt instanceof Date
+          ? mood.createdAt
+          : new Date(mood.createdAt);
       if (!isNaN(dateObj.getTime())) {
         const key = format(dateObj, "yyyy-MM-dd");
         // If multiple moods per day, keep the latest (or change logic as needed)
@@ -121,10 +127,6 @@ const BothSections = () => {
     );
   }, [dates, moods]);
 
-  const formatMoodDate = (date: Date) => {
-    return format(date, "yyyy.MM.dd");
-  };
-
   // Fix double click by toggling selected date
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
@@ -153,37 +155,7 @@ const BothSections = () => {
       {/* 📝 Mood Entries */}
       <div className="w-[700px] h-auto">
         {filteredMoods.length === 0 ? (
-          <div className="w-full h-auto flex flex-col px-[32px] py-[22px] gap-1.5 bg-white border border-[#E5E5E5] rounded-[20px] mb-4">
-            {/* Header */}
-            <div className="w-full flex items-center justify-between gap-[12px]">
-              <div className="flex gap-[12px] items-center">
-                <div className="w-[70px] h-[70px] overflow-hidden">
-                  <img src="/images/none.svg" alt="none" />
-                </div>
-                <h2 className="text-neutral-400 text-base font-medium leading-tight">
-                  Мэдээлэл алга
-                </h2>
-              </div>
-              {/* Show selected date here */}
-              <div className="shrink-0 text-left">
-                <pre className="whitespace-pre-line text-neutral-400 text-sm font-base leading-tight">
-                  {dates ? formatMoodDate(dates) : ""}
-                </pre>
-              </div>
-            </div>
-            {/* Note Content */}
-            <div className="w-full">
-              <h2 className="text-neutral-400 text-base font-normal leading-snug">
-                Та энэ өдөр тэмдэглэл хөтлөөгүй байна.
-              </h2>
-            </div>
-            {/* Delete Button */}
-            <div className="flex justify-end">
-              <button className="cursor-pointer">
-                <Trash className="w-[16px] h-[16px] border-neutral-400" />
-              </button>
-            </div>
-          </div>
+          <None />
         ) : (
           filteredMoods.map((mood, idx) => (
             <div
@@ -200,10 +172,13 @@ const BothSections = () => {
                     {mood.moodTitle || "No description"}
                   </h2>
                 </div>
-                {/* Formatted Date */}
+                {/* Formatted Weekday, Time and Date */}
                 <div className="shrink-0 text-left">
+                  <div className="text-neutral-400 text-xs font-semibold leading-tight mb-1">
+                    {formatMN("EEEE, HH:mm", mood.createdAt)}
+                  </div>
                   <pre className="whitespace-pre-line text-neutral-400 text-sm font-base leading-tight">
-                    {formatMoodDate(mood.createdAt)}
+                    {format(mood.createdAt, "yyyy-MM-dd")}
                   </pre>
                 </div>
               </div>
