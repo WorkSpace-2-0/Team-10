@@ -1,0 +1,28 @@
+/* styles/AnimatedLogo.css */
+
+.logo {
+  width: 100px;
+  height: 100px;
+  animation: bounce 1s infinite;
+}
+
+/* Sequential bounce delays */
+.logo-container:nth-child(1) .logo {
+  animation-delay: 0s;
+}
+.logo-container:nth-child(2) .logo {
+  animation-delay: 0.2s;
+}
+.logo-container:nth-child(3) .logo {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}

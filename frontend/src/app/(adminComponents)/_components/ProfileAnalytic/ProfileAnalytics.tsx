@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "src/contexts/UserContext";
+import LoadingLogoRow from "src/components/Loading";
 
 type TopStat = {
   answer: string;
@@ -81,7 +82,13 @@ const ProfileAnalytics = () => {
       });
   }, []);
 
-  if (!stats) return <div>Loading...</div>;
+  if (!stats) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center">
+        <LoadingLogoRow />
+      </div>
+    );
+  }
 
   const data = [
     {
