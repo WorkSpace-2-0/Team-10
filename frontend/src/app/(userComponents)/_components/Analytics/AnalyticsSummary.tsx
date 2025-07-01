@@ -1,10 +1,11 @@
 "use client";
 
 import React from "react";
-import SmileEmoji from "../../../../components/svg/SmileEmoji";
-import { Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import GreenMood from "src/components/svg/GreenMood";
+import SmileEmoji from "src/components/svg/SmileEmoji";
+import SadEmoji from "src/components/svg/SadEmoji";
+import SadBlue from "src/components/svg/SadBlue";
 
 interface AnalyticsSummaryProps {
   summary: {
@@ -12,6 +13,8 @@ interface AnalyticsSummaryProps {
     overallAverage?: number;
     participantCount?: number;
     streakCount?: number;
+    lowestDay?: string;
+    topMoodTitle?: string;
   };
   range: number;
 }
@@ -26,6 +29,26 @@ const WeekDayTranslation = {
   Sunday: "Ням",
 } as const;
 
+const moodColors: Record<string, string> = {
+  Супер: "#F7DE5F",
+  "Дажгүй шүү": "#A0DF9A",
+  Тавгүй: "#3294F5",
+  Хэцүү: "#F38484",
+  Хэвийн: "#AAB1C3",
+};
+const moods = [
+  { image: "angryv2.svg", label: "Хэцүү", min: 0, max: 2 },
+  { image: "sadv2.svg", label: "Тавгүй", min: 2, max: 4 },
+  { image: "neutral.svg", label: "Хэвийн", min: 4, max: 6 },
+  { image: "happyv2.svg", label: "Дажгүй шүү", min: 6, max: 8 },
+  { image: "superv2.svg", label: "Супер", min: 8, max: 10.01 },
+];
+const findMoodImage = (label?: string) => {
+  if (!label) return null;
+  const mood = moods.find((m) => m.label === label);
+  return mood ? mood.image : null;
+};
+
 const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
   summary,
   range,
@@ -39,64 +62,12 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
     );
   }
 
-  const streak = summary.streakCount || 0;
-  const maxStreak = 10;
-  const isRewardUnlocked = streak >= maxStreak;
+  const topMoodColor = summary.topMoodTitle
+    ? moodColors[summary.topMoodTitle] || "#000"
+    : "#000";
+  const topMoodImage = findMoodImage(summary.topMoodTitle);
 
-  const stats = [
-    {
-      title: "Таний хамгийн өөдрөг өдөр",
-      value:
-        summary.bestDay && isWeekDay(summary.bestDay)
-          ? WeekDayTranslation[summary.bestDay]
-          : "Тодорхойгүй",
-      description: `${
-        range === 7 ? "Сүүлийн долоо хоногоор" : "Сүүлийн сараар"
-      }`,
-      icon: <GreenMood className="w-8 h-8" />,
-      color: "text-[#57C74D]",
-    },
-    {
-      title: "Оролцсон өдрийн тоо",
-      value: summary.participantCount ?? 0,
-
-      description: `${
-        range === 7
-          ? `Та сүүлийн долоо хоногт нийт ${
-              summary.participantCount ?? 0
-            } удаа мэдрэмжээ хуваалцсан.`
-          : `Та сүүлийн сард нийт ${
-              summary.participantCount ?? 0
-            } удаа мэдрэмжээ хуваалцсан.`
-      }`,
-      icon: <SmileEmoji />,
-      color: "text-[#4B85F7]",
-    },
-    {
-      title: isRewardUnlocked
-        ? "🎉 Урамшуулал идэвхжсэн!"
-        : "🔥 Урамшуулалд ойртож байна",
-      value: isRewardUnlocked ? `10/10` : `${streak}/10`,
-      description: isRewardUnlocked
-        ? "Та 10 хоног дараалан оролцож урамшууллаа авлаа!"
-        : `Та ${maxStreak - streak} өдөр дараалан оролцвол урамшууллаа авна.`,
-      icon: (
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className={`w-8 h-8 rounded-full flex items-center justify-center ${
-            isRewardUnlocked
-              ? "bg-yellow-400 text-white animate-pulse"
-              : "bg-gray-200 text-yellow-500"
-          }`}
-        >
-          <Sparkles size={16} />
-        </motion.div>
-      ),
-      color: "text-[#4B85F7]",
-    },
-  ];
+  const getLabel = () => (range === 7 ? "Сүүлийн долоо хоног" : "Сүүлийн сар");
 
   return (
     <div className="flex flex-col gap-8">
@@ -106,35 +77,60 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stats.map((stat, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between"
-            >
-              <div className="flex flex-col gap-2">
-                <p className="text-[16px] text-neutral-500">{stat.title}</p>
-                <p className={`text-[26px] font-medium ${stat.color} `}>
-                  {stat.value}
-                </p>
-                <p className="text-[16px] text-gray-600">{stat.description}</p>
-
-                {/* Progress bar if not yet unlocked */}
-                {!isRewardUnlocked && index === 2 && (
-                  <div className="w-full h-2 mt-2 bg-gray-200 rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-yellow-400 to-pink-500"
-                      initial={{ width: 0 }}
-                      animate={{
-                        width: `${(streak / maxStreak) * 100}%`,
-                      }}
-                      transition={{ duration: 0.8 }}
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="ml-4">{stat.icon}</div>
+          {/* Best Day */}
+          <div className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between">
+            <div className="flex flex-col gap-2">
+              <p className="text-[16px] text-neutral-500">Өөдрөг өдөр</p>
+              <p className="text-[26px] font-medium text-[#4B85F7]">
+                {summary.bestDay && isWeekDay(summary.bestDay)
+                  ? WeekDayTranslation[summary.bestDay]
+                  : "Тодорхойгүй"}
+              </p>
+              <p className="text-[16px]">{getLabel()}</p>
             </div>
-          ))}
+            <div className="ml-4">
+              <SmileEmoji />
+            </div>
+          </div>
+
+          {/* Lowest Day */}
+          <div className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between">
+            <div className="flex flex-col gap-2">
+              <p className="text-[16px] text-neutral-500">
+                Сэтгэл жаахан унасан өдөр
+              </p>
+              <p className="text-[26px] font-medium text-[#4B85F7]">
+                {summary.lowestDay && isWeekDay(summary.lowestDay)
+                  ? WeekDayTranslation[summary.lowestDay]
+                  : "Тодорхойгүй"}
+              </p>
+              <p className="text-[16px] text-gray-600">{getLabel()}</p>
+            </div>
+            <div className="ml-4">
+              <SadBlue />
+            </div>
+          </div>
+
+          {/* Top Mood Title */}
+          <div className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between">
+            <div className="flex flex-col gap-2 w-full">
+              <p className="text-[16px] text-neutral-500">
+                Давамгайлсан мэдрэмж
+              </p>
+              <p
+                className="text-[26px] font-medium"
+                style={{ color: topMoodColor }}
+              >
+                {summary.topMoodTitle || "Тодорхойгүй"}
+              </p>
+              <p className="text-[16px] text-gray-600">{getLabel()}</p>
+            </div>
+            <img
+              src={`/images/${topMoodImage}`}
+              alt={summary.topMoodTitle}
+              className="w-10 h-10 "
+            />
+          </div>
         </div>
       </div>
     </div>
