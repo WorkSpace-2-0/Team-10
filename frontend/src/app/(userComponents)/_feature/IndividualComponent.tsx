@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import UserAnalytics from "../_components/Analytics/UserAnalytics";
 import MoodEntry from "../_components/MoodEntry";
 import { useUser } from "../../../contexts/UserContext";
+import { useStreak } from "src/contexts/StreakContext";
 UserAnalytics;
 
 const weekdays = ["Да", "Мя", "Лха", "Пү", "Ба"];
@@ -21,6 +22,7 @@ export default function App() {
   const [submitted, setSubmitted] = useState(false);
   const [moods, setMoods] = useState<any[]>([]);
   const { name, userId } = useUser();
+  const { streakCount } = useStreak();
 
   useEffect(() => {
     const fetchMoods = async () => {
@@ -73,9 +75,10 @@ export default function App() {
   };
 
   const days = getDayEmojiMap();
+  console.log(streakCount);
 
   return (
-    <div className="h-full w-full flex items-center flex-col gap-6 justify-center bg-white px-4 py-10">
+    <div className="h-full w-full flex items-center flex-col gap-6 justify-center bg-[#f7f7f7] ">
       {!submitted ? (
         <MoodEntry onSuccess={handleSuccess} name={name} />
       ) : (
@@ -91,7 +94,7 @@ export default function App() {
           </p>
 
           <div className="text-yellow-500 text-[80px] font-bold my-4">
-            {days.filter((d) => d.filled).length}
+            {streakCount}
           </div>
           <div className="text-xl font-semibold mb-6">хоногийн streak</div>
 

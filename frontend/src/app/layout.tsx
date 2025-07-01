@@ -4,6 +4,7 @@ import "./globals.css";
 import AuthProvider from "../contexts/AuthContext";
 import { UserProvider } from "../contexts/UserContext";
 import { RoleProvider } from "src/contexts/RoleContext";
+import { StreakProvider } from "src/contexts/StreakContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,12 +29,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#f7f7f7]`}
         suppressHydrationWarning={true}
       >
         <AuthProvider>
           <UserProvider>
-            <RoleProvider>{children}</RoleProvider>
+            <RoleProvider>
+              <StreakProvider>{children}</StreakProvider>
+            </RoleProvider>
           </UserProvider>
         </AuthProvider>
       </body>

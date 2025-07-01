@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <div className="w-screen h-screen">
       <Header isIndividual={isIndividual} toggleMode={toggleMode} />
-      <div>{isIndividual ? <IndividualComponent /> : <AdminComponent />}</div>
+      <div>{isIndividual ? <AdminComponent /> : <IndividualComponent />}</div>
     </div>
   );
 }
