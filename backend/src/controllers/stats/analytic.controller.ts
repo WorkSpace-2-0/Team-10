@@ -130,6 +130,7 @@ export const getMoodChart = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
 export const getMoodSummary = async (req: Request, res: Response) => {
   try {
     const rangeDays = parseInt(req.query.range as string) || DEFAULT_RANGE_DAYS;
@@ -144,6 +145,7 @@ export const getMoodSummary = async (req: Request, res: Response) => {
     const prevFilter: any = {
       createdAt: { $gte: prevRangeStart.toDate(), $lt: prevRangeEnd.toDate() },
     };
+
     if (userId) {
       currentFilter.userId = userId;
       prevFilter.userId = userId;
@@ -161,13 +163,21 @@ export const getMoodSummary = async (req: Request, res: Response) => {
 
     const moodByDay: Record<string, number[]> = {};
     const userSet = new Set<string>();
+    const moodTitleCount: Record<string, number> = {};
 
     filteredEntries.forEach((entry) => {
       if (typeof entry.moodScore !== "number") return;
       if (entry.userId) userSet.add(entry.userId.toString());
+
       const day = dayjs(entry.createdAt).format("dddd");
       if (!moodByDay[day]) moodByDay[day] = [];
       moodByDay[day].push(entry.moodScore);
+
+      // Count mood titles
+      if (entry.moodTitle) {
+        moodTitleCount[entry.moodTitle] =
+          (moodTitleCount[entry.moodTitle] || 0) + 1;
+      }
     });
 
     const allCurrentMoods = Object.values(moodByDay).flat();
@@ -177,6 +187,7 @@ export const getMoodSummary = async (req: Request, res: Response) => {
         ).toFixed(2)
       : 0;
 
+    // Best mood day (highest average)
     const bestDay =
       Object.entries(moodByDay)
         .map(([day, scores]) => ({
@@ -185,13 +196,27 @@ export const getMoodSummary = async (req: Request, res: Response) => {
         }))
         .sort((a, b) => b.avg - a.avg)[0]?.day || null;
 
+    // Lowest mood day (lowest average)
+    const lowestDay =
+      Object.entries(moodByDay)
+        .map(([day, scores]) => ({
+          day,
+          avg: scores.reduce((a, b) => a + b, 0) / scores.length,
+        }))
+        .sort((a, b) => a.avg - b.avg)[0]?.day || null;
+
+    // Most frequent mood title
+    const topMoodTitle =
+      Object.entries(moodTitleCount).sort((a, b) => b[1] - a[1])[0]?.[0] ||
+      null;
+
+    // Previous entries for change %
     const prevFiltered = prevEntries.filter((entry) => {
       const dayName = dayjs(entry.createdAt).format("dddd");
       return WEEKDAYS.includes(dayName) && typeof entry.moodScore === "number";
     });
 
     const prevMoods = prevFiltered.map((e) => e.moodScore as number);
-
     const prevAverage = prevMoods.length
       ? +(prevMoods.reduce((a, b) => a + b, 0) / prevMoods.length).toFixed(2)
       : 0;
@@ -199,8 +224,8 @@ export const getMoodSummary = async (req: Request, res: Response) => {
     const changePercentage = prevAverage
       ? +(((overallAverage - prevAverage) / prevAverage) * 100).toFixed(2)
       : 0;
-    const totalUsers = await User.countDocuments();
 
+    const totalUsers = await User.countDocuments();
     const streakCount = userId
       ? await countConsecutiveMoodEntryDays(userId)
       : 0;
@@ -209,13 +234,15 @@ export const getMoodSummary = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       bestDay,
+      lowestDay,
+      topMoodTitle,
       totalUsers,
       overallAverage,
       changePercentage,
       rangeDays,
       participantCount,
-      userId: userId || null,
       streakCount,
+      userId: userId || null,
     });
   } catch (err) {
     console.error("getMoodSummary error:", err);

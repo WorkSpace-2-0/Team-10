@@ -60,45 +60,54 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
     }
   };
 
+
   return (
-    <div className="w-full min-h-screen bg-white flex items-center justify-center text-center px-4 py-10">
-      <div className="w-[590px] flex flex-col justify-center items-center">
-        <h2 className="w-[487px] h-[23px] font-inter font-medium text-[18px] leading-[130%] text-center text-neutral-800 mb-1">
-          Сайн уу, {name}
-        </h2>
+    <div className="w-full bg-gray-100 flex items-center justify-center text-center m-0 p-0">
+      <div className="w-full flex flex-col justify-center items-center bg-white border-b rounded-bl-[100px] rounded-br-[100px] m-0 p-0 pt-[32px] pb-[44px] overflow-hidden">
+        <div className="">
+          <h2 className="w-[487px] h-[23px] font-inter font-medium text-[18px] leading-[130%] text-center text-neutral-800">
+            Сайн уу, {name}
+          </h2>
+        </div>
 
-        <h1 className="w-[487px] h-[31px] text-[24px] text-[#262626] font-medium leading-[130%] text-center mb-8">
-          Та өнөөдөр ямар сэтгэгдэлтэй байна вэ?
-        </h1>
+        <div className="mb-[30px]">
+          <h1 className="w-[487px] h-[31px] text-[24px] text-[#262626] font-medium leading-[130%] text-center">
+            Та өнөөдөр ямар сэтгэгдэлтэй байна вэ?
+          </h1>
+        </div>
 
-        <MoodSlider
-          value={mood}
-          onChange={setMood}
-          onMoodTitleChange={setMoodTitle}
-        />
+        <div className="w-full max-w-[590px] mb-[12px]">
+          <MoodSlider
+            value={mood}
+            onChange={setMood}
+            onMoodTitleChange={setMoodTitle}
+          />
+        </div>
 
-        <div className="mt-6 mb-8 text-center">
+        <div className="mb-[20px] text-center">
           <img
             src="/images/text.png"
             className="inline-block w-[300px] h-auto object-contain"
           />
         </div>
 
-        <p className="w-[250px] h-[20px] text-center font-medium text-[16px] leading-[20px] text-black mb-2">
+        <p className="w-[250px] h-[20px] text-center font-medium text-[16px] leading-[20px] text-black mb-[16px]">
           Тэмдэглэл үлдээх (заавал биш)
         </p>
 
-        <Textarea
-          placeholder="Би өнөөдөр..."
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          className="w-[386px] h-[90px] flex items-center justify-center px-3 py-2 box-border bg-[#FAFAFA] border border-[#E5E5E5] rounded-[10px] text-center text-base font-normal placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
-        />
+        <div className="w-full flex justify-center">
+          <Textarea
+            placeholder="Би өнөөдөр..."
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            className="w-[500px] h-[90px] px-3 py-2 box-border bg-[#FAFAFA] border border-[#E5E5E5] rounded-[10px] text-center text-base font-normal placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none"
+          />
+        </div>
 
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="mt-6 w-full flex justify-center disabled:cursor-not-allowed"
+          className="mt-[20px] w-full flex justify-center disabled:cursor-not-allowed"
         >
           <img
             src={loading ? "/images/save.png" : "/images/save.png"}
@@ -111,7 +120,7 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
 
         {message && (
           <p
-            className={`mt-4 text-center text-sm ${
+            className={`mt-[10px] text-center text-sm ${
               message.includes("Амжилттай") ? "text-green-600" : "text-red-600"
             }`}
           >

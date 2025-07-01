@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useUser } from "src/contexts/UserContext";
+import LoadingLogoRow from "src/components/Loading";
 
 type TopStat = {
   answer: string;
@@ -70,6 +72,7 @@ const LABELS: Record<
 
 const ProfileAnalytics = () => {
   const [stats, setStats] = useState<StatsResponse | null>(null);
+  const { name } = useUser();
 
   useEffect(() => {
     axios
@@ -79,7 +82,13 @@ const ProfileAnalytics = () => {
       });
   }, []);
 
-  if (!stats) return <div>Loading...</div>;
+  if (!stats) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center">
+        <LoadingLogoRow />
+      </div>
+    );
+  }
 
   const data = [
     {
@@ -98,35 +107,43 @@ const ProfileAnalytics = () => {
 
   return (
     <div className="h-screen w-full flex justify-center items-center flex-col">
-      <div className="max-w-7xl w-full flex flex-col gap-9 p-6">
-        <div className="flex gap-6 items-center">
-          <h1 className="text-3xl">Санал болгох үйл ажиллагаанууд</h1>
-          <div className="py-1.5 px-3 bg-[#E2EBFE] border border-[#6396F8] rounded-4xl">
-            <p className="text-[14px]">Багийн профайл дээр суурилсан</p>
-          </div>
+      <div className="max-w-7xl w-full">
+        <div className="mb-10">
+          <p className="text-[20px] font-medium">Сайн уу, {name}</p>
+          <p className="text-[20px] text-[#333333]">
+            Таны баг ерөнхий эдгээр үзүүлэлтүүдтэй байна.
+          </p>
         </div>
+        <div className=" w-full bg-white rounded-xl flex flex-col gap-9 p-8">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl">Санал болгох үйл ажиллагаанууд</h1>
+            <div className="py-1.5 px-3 bg-[#E2EBFE] border border-[#6396F8] rounded-4xl">
+              <p className="text-[14px]">Багийн профайл дээр суурилсан</p>
+            </div>
+          </div>
 
-        <div className="flex justify-between w-full">
-          {data.map((item) => {
-            const meta = LABELS[item.answer];
+          <div className="flex justify-between w-full">
+            {data.map((item) => {
+              const meta = LABELS[item.answer];
 
-            if (!meta) return null;
+              if (!meta) return null;
 
-            return (
-              <div
-                key={item.key}
-                className="border rounded-xl w-[387px] h-[164px] flex flex-col gap-2 justify-center p-8 shadow-sm hover:border-blue-400 transition-all"
-              >
-                <div className="flex gap-2 items-center text-[18px]">
-                  <span className="text-2xl">{meta.emoji}</span>
-                  <span className="font-medium">{meta.label}</span>
+              return (
+                <div
+                  key={item.key}
+                  className="border rounded-xl w-[387px] h-[164px] flex flex-col gap-2 justify-center p-8 shadow-sm hover:border-blue-400 transition-all"
+                >
+                  <div className="flex gap-2 items-center text-[18px]">
+                    <span className="text-2xl">{meta.emoji}</span>
+                    <span className="font-medium">{meta.label}</span>
+                  </div>
+                  <p className="text-neutral-500 text-[16px]">
+                    {meta.description(item.percent)}
+                  </p>
                 </div>
-                <p className="text-neutral-500 text-[16px]">
-                  {meta.description(item.percent)}
-                </p>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
