@@ -100,7 +100,7 @@ const AdminAnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
   ];
 
   return (
-    <div className="space-y-6 ">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[24px] font-medium text-gray-900">

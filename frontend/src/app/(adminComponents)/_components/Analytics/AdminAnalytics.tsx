@@ -7,7 +7,7 @@ import isoWeek from "dayjs/plugin/isoWeek";
 import MoodChart from "../../../(userComponents)/_components/Analytics/MoodChart";
 import AnalyticsControls from "../../../(userComponents)/_components/Analytics/AnalyticsControls";
 import AdminAnalyticsSummary from "./AdminAnalyticsSummary";
-
+import TeamSummary from "src/components/TeamSummary";
 dayjs.extend(isoWeek);
 
 type MoodEntry = {
@@ -143,7 +143,7 @@ const AdminAnalytics = () => {
   };
 
   return (
-    <div className="max-w-7xl w-full flex flex-col mx-auto  gap-6">
+    <div className="max-w-7xl w-full flex flex-col mx-auto p-6 gap-6">
       {loading && (
         <div className="text-center text-gray-600 py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -163,9 +163,12 @@ const AdminAnalytics = () => {
         </div>
       )}
 
-      {!loading && !error && (
+      {!loading && !error && summary && (
         <>
           <AdminAnalyticsSummary summary={summary} range={getRangeDays()} />
+
+          {/* ✅ Mood warning + stat change cards */}
+          <TeamSummary summary={summary} />
 
           <AnalyticsControls
             rangeLabel={rangeLabel()}
