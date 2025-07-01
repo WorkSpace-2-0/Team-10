@@ -143,7 +143,7 @@ const AdminAnalytics = () => {
   };
 
   return (
-    <div className="max-w-7xl w-full flex flex-col mx-auto p-6 gap-6">
+    <div className="max-w-7xl w-full flex flex-col mx-auto  gap-6">
       {loading && (
         <div className="text-center text-gray-600 py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
