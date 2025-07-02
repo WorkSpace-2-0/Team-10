@@ -47,7 +47,12 @@ const Login = () => {
     <div className="w-screen h-screen flex items-center justify-center bg-white">
       <div className="w-[1200px] h-[900px] rounded-full overflow-hidden relative">
         <div className="absolute inset-0">
-          <Image src={"/images/Eclipse1.png"} width={1200} height={900} alt="" />
+          <Image
+            src={"/images/Eclipse1.png"}
+            width={1200}
+            height={900}
+            alt=""
+          />
         </div>
 
         <div className="relative z-10 w-full h-full flex flex-col items-center justify-center gap-4 px-10">
@@ -74,7 +79,7 @@ const Login = () => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ isSubmitting }) => (
+            {({ isSubmitting, setValues }) => (
               <Form className="flex flex-col items-center gap-4 w-full">
                 <div className="w-full max-w-sm">
                   <Field
@@ -106,12 +111,25 @@ const Login = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full text-white py-2 px-4 rounded-full shadow-md bg-[#94B7FA]  group-hover:from-blue-500 group-hover:to-blue-700 group-hover:bg-gradient-to-r transition-all duration-700"
+                    className="w-full text-white cursor-pointer py-2 px-4 rounded-full shadow-md bg-[#94B7FA]  group-hover:from-blue-500 group-hover:to-blue-700 group-hover:bg-gradient-to-r transition-all duration-700"
                   >
                     {isSubmitting ? "Түр хүлээнэ үү..." : "Нэвтрэх"}
                   </button>
                 </div>
                 or
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() =>
+                    setValues({
+                      email: "battulgabathuyg54@gmail.com",
+                      password: "123456",
+                    })
+                  }
+                  className="w-[200px] cursor-pointer text-white py-2 px-4 rounded-full shadow-md bg-[#94B7FA] hover:to-blue-700"
+                >
+                  Demo
+                </button>
                 <div className="text-sm text-gray-600">
                   <a
                     href="/sign-up"
