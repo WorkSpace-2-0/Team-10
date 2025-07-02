@@ -8,6 +8,7 @@ import MoodChart from "../../../(userComponents)/_components/Analytics/MoodChart
 import AnalyticsControls from "../../../(userComponents)/_components/Analytics/AnalyticsControls";
 import AdminAnalyticsSummary from "./AdminAnalyticsSummary";
 import TeamSummary from "src/components/TeamSummary";
+import { SkelA } from "src/components/individual/skeleton-admin";
 dayjs.extend(isoWeek);
 
 type MoodEntry = {
@@ -144,12 +145,7 @@ const AdminAnalytics = () => {
 
   return (
     <div className="max-w-7xl w-full flex flex-col mx-auto p-6 gap-6">
-      {loading && (
-        <div className="text-center text-gray-600 py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2">Уншиж байна...</p>
-        </div>
-      )}
+      {loading && <SkelA />}
 
       {!loading && error && (
         <div className="text-center text-red-500 py-8">

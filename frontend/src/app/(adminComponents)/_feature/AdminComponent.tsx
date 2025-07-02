@@ -6,7 +6,7 @@ import ProfileAnalytics from "../_components/ProfileAnalytic/ProfileAnalytics";
 
 export default function AdminComponent() {
   return (
-    <div className=" mt-[54px] flex flex-col gap-[60px]  w-screen h-screen">
+    <div className="mt-[54px] flex flex-col gap-[60px]  w-screen h-screen">
       <ProfileAnalytics />
       <AdminAnalytics />
     </div>
