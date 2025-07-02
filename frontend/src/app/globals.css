@@ -145,23 +145,50 @@
   bottom: 6px;
   transform: translateX(-50%);
   z-index: 1;
-  box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.12), inset 2px 2px 4px rgba(255, 255, 255, 0.32);
-  background:
-    linear-gradient(
-      to right,
-      var(--mood-color, #A0DF9A) 0%,
-      var(--mood-color, #A0DF9A) 60%,
-      #b0b0b0 60%,
-      #b0b0b0 100%
-    );
-  clip-path: polygon(
-    0% 0%, 100% 0%, 100% 0%, 100% 100%, 60% 100%, 0% 100%
+  box-shadow:
+    inset -2px -2px 4px rgba(0, 0, 0, 0.12),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.32);
+  background: linear-gradient(
+    to right,
+    var(--mood-color, #a0df9a) 0%,
+    var(--mood-color, #a0df9a) 100%,
+
+    #b0b0b0 100%
   );
+  clip-path: polygon(0% 0%, 100% 0%, 100% 0%, 100% 100%, 60% 100%, 0% 100%);
 }
 
 /* Set the mood color for each mood */
-.mood-happy.pencil::after { --mood-color: #A0DF9A; }
-.mood-sad.pencil::after { --mood-color: #94C7FA; }
-.mood-angry.pencil::after { --mood-color: #F38484; }
-.mood-awesome.pencil::after { --mood-color: #F7B069; }
-.mood-neutral.pencil::after { --mood-color: #F0F3FA; }
+.mood-happy.pencil::after {
+  --mood-color: #a0df9a;
+}
+.mood-sad.pencil::after {
+  --mood-color: #94c7fa;
+}
+.mood-angry.pencil::after {
+  --mood-color: #f38484;
+}
+.mood-awesome.pencil::after {
+  --mood-color: #f7b069;
+}
+.mood-neutral.pencil::after {
+  --mood-color: #ff69b4;
+}
+
+
+.mood-neutral.pencil::before {
+  content: "";
+  position: absolute;
+  top: 1px;   
+  right: -13px;
+  width: 40px;
+  height: 50px;
+  aspect-ratio: 3 / 14;
+  transform: rotate(0deg);
+  background-image: url('/images/pencil.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  z-index: 2;
+}
+
+
