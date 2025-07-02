@@ -8,6 +8,7 @@ import MoodChart from "./MoodChart";
 import AnalyticsControls from "./AnalyticsControls";
 import AnalyticsSummary from "./AnalyticsSummary";
 import { useUser } from "../../../../contexts/UserContext";
+import { Skel } from "src/components/individual/skeleton";
 
 dayjs.extend(isoWeek);
 
@@ -146,12 +147,7 @@ const UserAnalytics = () => {
 
   return (
     <div className="max-w-7xl w-full mx-auto p-6 flex flex-col gap-4">
-      {loading && (
-        <div className="text-center text-gray-600 py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2">Уншиж байна...</p>
-        </div>
-      )}
+      {loading && <Skel />}
 
       {!loading && error && (
         <div className="text-center text-red-500 py-8">
