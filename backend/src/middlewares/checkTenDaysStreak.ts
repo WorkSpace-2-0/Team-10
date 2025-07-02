@@ -32,7 +32,7 @@ export async function hasTenDayMoodEntryStreak(
 
     const count = await MoodEntry.countDocuments({
       userId,
-      date: { $gte: start, $lte: end },
+      createdAt: { $gte: start, $lte: end },
     });
 
     if (count === 0) {
