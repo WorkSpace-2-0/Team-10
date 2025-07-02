@@ -4,6 +4,7 @@ import React from "react";
 import { useState } from "react";
 import axios from "axios";
 import { useEffect } from "react";
+import { TeamsDataSkeleton } from "./Teams-Skeleton";
 
 type User = {
   userName: string;
@@ -18,6 +19,7 @@ export const TeamsData = () => {
   const [selectedRole, setSelectedRole] = useState<"ALL" | "USER" | "ADMIN">(
     "ALL"
   );
+  const [isLoading, setIsLoading] = useState(true);
 
   const closeAll = () => {
     setFileOpen(false);
@@ -33,11 +35,16 @@ export const TeamsData = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/GetAllUser`);
+      setIsLoading(true);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/auth/GetAllUser`
+      );
       setData(response.data);
       console.log("Data fetched successfully:", response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -45,6 +52,9 @@ export const TeamsData = () => {
     fetchData();
   }, []);
 
+    if (isLoading) {
+    return <TeamsDataSkeleton />;
+  }
   return (
     <div>
       <div
