@@ -33,7 +33,7 @@ export const TeamsData = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`http://localhost:9999/auth/GetAllUser`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/GetAllUser`);
       setData(response.data);
       console.log("Data fetched successfully:", response.data);
     } catch (error) {
@@ -48,7 +48,7 @@ export const TeamsData = () => {
   return (
     <div>
       <div
-        className="flex gap-1 bg-white mt-5 px-2 py-1 rounded-3xl w-fit"
+        className="flex gap-1 bg-gray-100 mt-5 px-2 py-1 rounded-3xl w-fit"
         onClick={closeAll}
       >
         <div className="relative">
@@ -61,10 +61,8 @@ export const TeamsData = () => {
               setAdminOpen(false);
               setSelectedRole("ALL");
             }}
-            className={`rounded-3xl px-3 py-1 text-sm  ${
-              selectedRole === "ALL"
-                ? "bg-gray-100"
-                : ""
+            className={`rounded-3xl px-3 py-1 text-sm text-black font-medium  ${
+              selectedRole === "ALL" ? "bg-white" : ""
             }`}
           >
             Бүгд
@@ -95,10 +93,8 @@ export const TeamsData = () => {
               setAdminOpen(false);
               setSelectedRole("USER");
             }}
-             className={`rounded-3xl px-3 py-1 text-sm  ${
-              selectedRole === "USER"
-                ? "bg-gray-100"
-                : ""
+            className={`rounded-3xl px-3 py-1 text-sm font-medium ${
+              selectedRole === "USER" ? "bg-white" : ""
             }`}
           >
             Гишүүн
@@ -121,10 +117,8 @@ export const TeamsData = () => {
               setMemberOpen(false);
               setSelectedRole("ADMIN");
             }}
-            className={`rounded-3xl px-3 py-1 text-sm ${
-              selectedRole === "ADMIN"
-                ? "bg-gray-100"
-                : ""
+            className={`rounded-3xl px-3 py-1 text-sm font-medium ${
+              selectedRole === "ADMIN" ? "bg-white" : ""
             }`}
           >
             Админ
