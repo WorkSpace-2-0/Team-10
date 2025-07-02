@@ -82,7 +82,7 @@ export default function App() {
       {!submitted ? (
         <MoodEntry onSuccess={handleSuccess} name={name} />
       ) : (
-        <div className="flex flex-col items-center text-center w-full h-auto">
+        <div className="flex flex-col items-center bg-white pt-[44px] rounded-b-[100px] text-center w-full h-auto">
           <h2 className="text-xl font-semibold mb-2">Сайн уу, {name}</h2>
           <h1 className="text-2xl font-bold mb-2">
             Мэдрэмжээ хуваалцсанд баярлалаа.
@@ -102,7 +102,7 @@ export default function App() {
           </div>
           <div className="text-xl font-semibold mb-6">хоногийн streak</div>
 
-          <div className="bg-gray-50 border rounded-xl p-6 max-w-md w-full shadow-sm">
+          <div className="bg-gray-50 border rounded-xl p-6 mb-[94px] max-w-md w-full shadow-sm">
             <div className="flex justify-between items-center mb-4">
               {days.map((d, index) => (
                 <div key={index} className="flex flex-col items-center">

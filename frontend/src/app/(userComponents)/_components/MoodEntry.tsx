@@ -11,6 +11,13 @@ type MoodEntryProps = {
   onSuccess?: () => void;
   name?: string;
 };
+type RewardType = {
+  rewardTitle: string;
+  code: string;
+  description: string;
+  expireDay?: string;
+  value?: string;
+};
 
 export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
   const [mood, setMood] = useState(2);
@@ -19,7 +26,7 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const { userId } = useUser();
-  const [reward, setReward] = useState<string | null>(null);
+  const [reward, setReward] = useState<RewardType | null>(null);
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [showGift, setShowGift] = useState(false);
   const { fetchStreak } = useStreak();
@@ -120,7 +127,7 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
 
         {reward && !showRewardModal && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20 "
+            className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/65 "
             onClick={() => {
               if (!showRewardModal) setShowRewardModal(true);
             }}
@@ -136,7 +143,7 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
         )}
 
         {showRewardModal && reward && (
-          <div className="fixed inset-0 z-70 flex items-center cursor-default justify-center backdrop-blur-sm bg-black/20">
+          <div className="fixed inset-0 z-70 flex items-center cursor-default justify-center backdrop-blur-sm bg-black/65">
             <div className="bg-white rounded-lg p-8 shadow-xl flex flex-col gap-5 text-center w-[516px] relative">
               <h2 className="text-[16px] font-medium text-gray-800 mb-2">
                 Та урамшуулал авлаа!
@@ -158,10 +165,11 @@ export default function MoodForm({ onSuccess, name }: MoodEntryProps) {
                   className="mx-auto w-16 h-16 "
                   alt="Opened Gift"
                 />
-                <div>
+                <div className="flex flex-col gap-2">
                   <p className="text-[24px] font-semibold">
                     {reward.rewardTitle}
                   </p>
+                  <p className="text-[14px] text-neutral-400">{reward.code}</p>
                   <p className="text-neutral-400 text-[14px]">
                     {reward.description}
                   </p>
