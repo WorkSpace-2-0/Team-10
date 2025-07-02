@@ -36,7 +36,7 @@ const Login = () => {
       toast.success("Амжилттай нэвтэрлээ!");
       resetForm();
 
-      router.push("/note");
+      router.push("/");
     } catch (error: any) {
       console.error(error);
       toast.error(error?.response?.data?.message || "Нэвтрэхэд алдаа гарлаа");
