@@ -22,7 +22,7 @@ export default function App() {
   const [submitted, setSubmitted] = useState(false);
   const [moods, setMoods] = useState<any[]>([]);
   const { name, userId } = useUser();
-  const { streakCount } = useStreak();
+  const { streakCount, loading } = useStreak();
 
   useEffect(() => {
     const fetchMoods = async () => {
@@ -94,7 +94,11 @@ export default function App() {
           </p>
 
           <div className="text-yellow-500 text-[80px] font-bold my-4">
-            {streakCount}
+            {loading ? (
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            ) : (
+              streakCount
+            )}
           </div>
           <div className="text-xl font-semibold mb-6">хоногийн streak</div>
 

@@ -66,7 +66,7 @@ export default function MoodSlider({
           <Slider.Range className="absolute h-full rounded-full bg-white/30" />
         </Slider.Track>
 
-        <Slider.Thumb className="block w-9 h-9 rounded-full overflow-hidden p-0 focus:outline-none focus:ring-0">
+        <Slider.Thumb className="block w-9 h-9 cursor-pointer rounded-full overflow-hidden p-0 focus:outline-none focus:ring-0">
           <img src="/images/ring.png" className="w-full h-full object-cover" />
         </Slider.Thumb>
       </Slider.Root>
