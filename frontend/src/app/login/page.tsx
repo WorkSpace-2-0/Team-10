@@ -45,9 +45,9 @@ const Login = () => {
 
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-white">
-      <div className="w-[765px] h-[573px] rounded-full overflow-hidden relative">
+      <div className="w-[1200px] h-[900px] rounded-full overflow-hidden relative">
         <div className="absolute inset-0">
-          <Image src={"/images/Eclipse1.png"} width={765} height={573} alt="" />
+          <Image src={"/images/Eclipse1.png"} width={1200} height={900} alt="" />
         </div>
 
         <div className="relative z-10 w-full h-full flex flex-col items-center justify-center gap-4 px-10">
@@ -81,7 +81,7 @@ const Login = () => {
                     type="email"
                     name="email"
                     placeholder="Имэйл хаяг"
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
                   />
                   <ErrorMessage
                     name="email"
@@ -94,7 +94,7 @@ const Login = () => {
                     type="password"
                     name="password"
                     placeholder="Нууц үг"
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white"
                   />
                   <ErrorMessage
                     name="password"

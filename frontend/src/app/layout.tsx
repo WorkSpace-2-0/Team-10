@@ -4,7 +4,9 @@ import "./globals.css";
 import AuthProvider from "../contexts/AuthContext";
 import { UserProvider } from "../contexts/UserContext";
 import { RoleProvider } from "src/contexts/RoleContext";
+import ToastProvider from "../components/ToastProvider";
 import { StreakProvider } from "src/contexts/StreakContext";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +37,7 @@ export default function RootLayout({
         <AuthProvider>
           <UserProvider>
             <RoleProvider>
-              <StreakProvider>{children}</StreakProvider>
+              <StreakProvider>{children}<ToastProvider /></StreakProvider>
             </RoleProvider>
           </UserProvider>
         </AuthProvider>
