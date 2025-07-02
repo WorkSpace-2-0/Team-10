@@ -7,8 +7,8 @@ const SuccessScreen = () => {
   const router = useRouter();
 
   const handleContinue = () => {
-    router.push("/"); 
-  };
+    router.push("/"); // Dashboard руу шилжинэ
+
 
   return (
     <div className="relative flex flex-col items-center justify-center px-4 h-[600px]">
